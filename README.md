@@ -5,7 +5,7 @@ The goal of CLI-GPT is to provide a simple and intuitive interface for using and
 ##### Setup:
 Using this program requires an [OpenAI account](https://platform.openai.com/) (not to be confused with a ChatGPT account), and will require an API key which can be found [here](https://platform.openai.com/api-keys). This requires you add some funds to the account in order to qualify for making API calls.  
 *Using gpt-4o-mini, my cumulative API calls have not even amounted to 1 cent. My use is generally restricted to testing the program though.*  
-Once downloaded, you'll need [openai](https://pypi.org/project/openai/) and [rich](https://pypi.org/project/rich/)  
+Once downloaded, you'll need [openai](https://pypi.org/project/openai/) and [rich](https://pypi.org/project/rich/).  
 If you run into any problems, please reach out to me or create an issue.
 ##### To Do:
 - Settings persistence
