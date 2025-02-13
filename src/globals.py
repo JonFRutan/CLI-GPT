@@ -8,7 +8,7 @@ def clear_screen():
     os.system("cls" if OS_TYPE=="Windows" else "clear")
 
 def save_environment_variable(api_key):
-    if OS_TYPE in ["Linux", "Darwin"]: #POSIX systems; Linux, and Darwin for MAC
+    if OS_TYPE in ["Linux", "Darwin", "FreeBSD"]: #POSIX systems; Linux, and Darwin for MAC
        shell = os.path.expanduser("~/.bashrc")
        if os.path.exists(os.path.expanduser("~/.zshrc")):
            shell = os.path.expanduser("~/.zshrc")

@@ -1,8 +1,13 @@
 #jfr
-import sys, os, platform
-import openai 
-import user_client, globals
+#FIXME; Try to simplify this entry app as much as possible.
+#Move excess functions into different files.
+import os, sys, openai
+sys.path.append("src")
+from src.user_client import UserClient
+from src.commands import Commands
+import src.globals as globals
 
+#FIXME; move these into user_client.
 def validate_key(api_key):
     try:
         client = openai.OpenAI(api_key=api_key)
@@ -28,7 +33,7 @@ def generate_response(user, prompt):
 
 globals.clear_screen()
 print("Connecting to API...")
-user = user_client.UserClient("gpt-4o-mini", "Be a bit brief. When formatting text avoid markdown and use plain text.", None)
+user = UserClient("gpt-4o-mini", "Be a bit brief. When formatting text avoid markdown and use plain text.", None)
 ready = True
 key = os.getenv("OPENAI_API_KEY")
 if key:
@@ -52,23 +57,24 @@ while not ready:
                 globals.save_environment_variable(api_key)
 globals.clear_screen()
 
-commands = {
-    "configure": user.update_settings,
-    "info": user.print_settings,
-}
+commands_init = Commands(user)
+commands = commands_init.commands
 
-print("CLI-GPT\nType 'exit' or hit Ctrl+C to exit the program.\nType 'help' to see more commands.", end="")
+print("CLI-GPT\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.", end="")
 while True:    
     prompt = input("\n> ")
-    if prompt == "exit":
+    if prompt == "!exit":
         exit()
-    elif prompt == "help":
-        print(f"Available Commands:\n'configure' - Update model and system prompt.\n'info' - Prints some relevant info like model and prompt.")
     elif prompt in commands:
-        commands[prompt]()
+        result = commands[prompt].execute()
+        if result:
+            print(result)
     else:
         response = generate_response(user, prompt)
         for chunk in response:
             buffer = chunk.choices[0].delta.content
             if buffer:
                 print(buffer, end="")
+
+#if __name__ == "__main__":
+#    main()
