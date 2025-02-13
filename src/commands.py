@@ -9,7 +9,6 @@ class Command:
         self.context = context
 
     def execute(self, *args, **kwargs):
-        #Optional arguments are allowed
         if self.action:
             if self.context:
                 return self.action(self.context, *args, **kwargs)
@@ -25,9 +24,9 @@ class Commands:
         self.user = user
         self.populate_commands(user)
     
-    #FIXME; Doesn't work
     def clear_screen(self):
-        meta.clear_screen
+        meta.clear_screen()
+        return "[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands."
 
     def show_info(self):
         return self.user.print_settings()
@@ -35,6 +34,7 @@ class Commands:
     def show_help(self):
         return "Available commands: \n" + "\n".join(f"'{cmd.name}' - {cmd.description}" for cmd in self.commands.values()) 
 
+    #FIXME
     def import_file(self):
         pass
     

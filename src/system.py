@@ -1,14 +1,14 @@
 import openai
 import meta as meta
 
-class UserClient:
+class SystemSettings:
     def __init__(self, model, system_settings, ai_client):
         self.model = model
         self.system_settings = system_settings
         self.ai_client = ai_client
     
     def print_settings(self):
-        print(f"Model: {self.model} | System: {self.system_settings}")
+        return (f"Model: {self.model} | System: {self.system_settings}")
     
     def update_settings(self):
         self.print_settings()
