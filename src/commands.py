@@ -1,4 +1,4 @@
-import globals
+import meta
 
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
@@ -27,7 +27,7 @@ class Commands:
     
     #FIXME; Doesn't work
     def clear_screen(self):
-        globals.clear_screen
+        meta.clear_screen
 
     def show_info(self):
         return self.user.print_settings()
@@ -37,16 +37,19 @@ class Commands:
 
     def import_file(self):
         pass
-
+    
+    def update_settings(self):
+        self.user.update_settings()
 
     #List of command items
     #To add, remove, or change commands; modify this function.
     def populate_commands(self, user):
         self.commands = {
-            "!help": Command("help", "List available commands.", "help" , self.show_help),
-            "!info": Command("info", "Display user/system information.", "info", self.show_info),
-            "!clear": Command("clear", "Clear the screen.", "clear", self.clear_screen),
-            "!import": Command("import", "Import a file", "import files/image.png", self.import_file),
+            "!help": Command("!help", "List available commands.", "help" , self.show_help),
+            "!info": Command("!info", "Display user/system information.", "info", self.show_info),
+            "!clear": Command("!clear", "Clear the screen.", "clear", self.clear_screen),
+            "!import": Command("!import", "Import a file", "import files/image.png", self.import_file),
+            "!configure": Command("!configure", "Manually adjust all system settings", "!configure", self.update_settings),
             #"": Command(),
         }
         return self.commands

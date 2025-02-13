@@ -1,5 +1,5 @@
 import openai
-import src.globals as globals
+import meta as meta
 
 class UserClient:
     def __init__(self, model, system_settings, ai_client):
@@ -20,8 +20,8 @@ class UserClient:
             if new_model == '#':
                 break
             elif new_model == '?':
-                print(f"Ordered by token pricing: {globals.MODEL_LIST}")
-            elif new_model in globals.MODEL_LIST:
+                print(f"Ordered by token pricing: {meta.MODEL_LIST}")
+            elif new_model in meta.MODEL_LIST:
                 self.model = new_model
                 break
 
@@ -35,3 +35,36 @@ class UserClient:
             else:
                 self.system_settings = new_system
                 break
+
+    def generate_response(self, prompt):
+        response = self.ai_client.chat.completions.create(
+            model=f"{self.model}",
+            store=True,
+            messages=[
+            {"role": "system", "content": f"{self.system_settings}"},
+            {"role": "user", "content": f"{prompt}"}],
+            stream=True,
+            #max_tokens = 200, #Response length (higher -> longer)
+            #temperature = .5, #Randomness (0.0 is deterministic, 1.0 is very random)
+            #top_p = 1.0, #Nucleus sampling (0.0 only considers most likely tokens)
+            #frequency_penalty = 0.0, #Penalty value to frequent words (-2.0 to 2.0, higher is more penalty to repetition)
+            #presence_penalty = 0.0, #Encourages new topic introduction (-2.0 to 2.0, higher makes it more diverse)
+            #stop=["###", "\n\n"], #Stopping sequence, cuts responses early if encountered.
+            #logprobs = None, #
+            #echo - False, #True will include the prompt in the response, false doesn't.
+            #response_format = "json", #Makes response strictly adhere to a given format
+            #seed=40, #Deterministic responses for the same inputs
+        )
+        return response
+
+    def validate_key(self, api_key):
+        try:
+            test_client = openai.OpenAI(api_key=api_key)
+            test_client.models.list()
+            self.ai_client = test_client
+        except openai.BadRequestError:
+            print("Invalid API key.")
+            self.ai_client = None
+        except Exception as e:
+            print(f"API Issue. Try reentering your API key.\nError: {e}")
+            self.ai_client = None
