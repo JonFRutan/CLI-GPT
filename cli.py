@@ -1,10 +1,10 @@
 #jfr
 import os, sys
+sys.path.append("src")
 from rich.console import Console
 from system import SystemSettings
 from src.commands import Commands
 import meta as meta
-sys.path.append("src")
 
 console = Console()
 meta.clear_screen()
@@ -48,16 +48,21 @@ console.print("[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exi
 
 try:
     while True:    
-        prompt = console.input("[bold cyan]> [/bold cyan]")
-
+        prompt = console.input("[bold cyan][> [/bold cyan]")
+        head = prompt.split(" ")[0]
         if prompt in ["!exit", "exit"]:
             console.print("Exiting...")
             exit()
 
-        elif prompt in commands:
-            result = commands[prompt].execute()
+        elif head in commands:
+            args = prompt.split(" ")[1:]
+            if not args:
+                result = commands[head].execute()
+            else:
+                console.print(f"[bold blue]ARGS: {args}[/bold blue]")
+                result = commands[head].execute(*args)
             if result:
-                console.print(f"[green]{result}[green]")
+                console.print(f"[green]{result}[green]", end="")
 
         else:
             response = user.generate_response(prompt)

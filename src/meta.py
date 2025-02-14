@@ -1,9 +1,13 @@
-import os
-import platform
+import os, platform
 
 OS_TYPE = platform.system()
 MODEL_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"]
-
+# FIXME; This is rudimentary and early categorizations of the types of files that can be uploaded.
+# Anything that can be read in line-by-line should be under TEXT_FILES
+# Image file types should be under IMAGE_FILES
+# For now, only select file types will be strictly defined...
+IMAGE_FILES = ["png", "jpg", "gif", "webp"]
+TEXT_FILES = ["txt", "doc", "md", "html", "json", "py"]
 #clears the screen, a bit of a hacky approach to an interface.
 def clear_screen():
     os.system("cls" if OS_TYPE=="Windows" else "clear")
@@ -25,3 +29,12 @@ def save_environment_variable(api_key):
         print(f"API key saved. Restart your terminal to update it.")
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
+
+def import_file(file_path):
+    file_type = file_path.split(".")[1]
+    if file_type in TEXT_FILES:
+        with open (f"{file_path}", "r") as file:
+            contents = ""
+            for line in file:
+                contents += line
+            return contents
