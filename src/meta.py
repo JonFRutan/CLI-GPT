@@ -1,7 +1,10 @@
 import os, platform
 
-OS_TYPE = platform.system()
-MODEL_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"]
+OS_TYPE = platform.system()                                      #Current OS
+MODEL_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models
+imported_files = {}                                              #Dictionary for files                                              
+var_reg = r"\{([a-zA-Z0-9]+)\}"                                  #For finding references
+
 # FIXME; This is rudimentary and early categorizations of the types of files that can be uploaded.
 # Anything that can be read in line-by-line should be under TEXT_FILES
 # Image file types should be under IMAGE_FILES
@@ -31,10 +34,26 @@ def save_environment_variable(api_key):
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
 
 def import_file(file_path):
-    file_type = file_path.split(".")[1]
-    if file_type in TEXT_FILES:
-        with open (f"{file_path}", "r") as file:
-            contents = ""
-            for line in file:
-                contents += line
-            return contents
+    if not os.path.isfile(file_path):
+        print (f"File {file_path} doesn't exist.")
+        return
+    file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again
+    #NOTE; you can also use os.path.splitext to get the filetype, but I already made this.
+    reference_name = input(f"{file_path} found. Provide a reference name: ").strip()
+    imported_files[reference_name] = ImportedFile(reference_name, file_path, file_type)
+    return
+
+def retrieve_file(ref):
+    if ref in imported_files:
+        working_file = imported_files[ref]
+        if working_file.type in TEXT_FILES:
+            with open (working_file.path, 'r') as file:
+                return file.read()
+    else:
+        print(f"Reference {ref} unknown.")
+
+class ImportedFile:
+    def __init__(self, ref, path, type):
+        self.ref = ref
+        self.path = path
+        self.type = type

@@ -1,4 +1,4 @@
-import meta
+import meta, prompt
 
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
@@ -34,34 +34,39 @@ class Commands:
 
     def show_help(self, *args):
         if not args:
-            return "Available commands:\nType !help !(any command) to learn more about a specific commmand. \n" + "\n".join(f"'{cmd.name}' - {cmd.description}" for cmd in self.commands.values()) 
-        elif args[0][0] in self.commands:
-            c = args[0][0]
-            return f"{self.commands[c].name} - {self.commands[c].description} - Usage: {self.commands[c].syntax}"
+            return "Available commands:\nType !help !(any command) to learn more about a specific commmand. \n" + "\n".join(f"'{cmd.name}' - {cmd.description}" for cmd in self.commands.values())
+        c = "!" + args[0][0] 
+        if c in self.commands:
+            return f"{self.commands[c].name} - {self.commands[c].description} \nUsage: {self.commands[c].syntax}"
         else:
             return "Unknown command"
 
     def import_file(self, *args):
         if not args:
-            return f"No arguments. Usage: {self.commands["!info"].syntax}"
+            return f"No arguments provided. Usage: {self.commands["!info"].syntax}"
         else:
-            appender = ""
             for path in args[0]:
-                appender += meta.import_file(path)
-        return appender
+                meta.import_file(path)
     
     def update_settings(self):
         self.user.update_settings()
 
+    def show_imports(self, *args):
+        appender = ""
+        for entry in meta.imported_files:
+            appender += entry + ", "
+        return appender
+    
     #List of command items
     #To add, remove, or change commands; modify this function.
     def populate_commands(self, user):
         self.commands = {
-            "!help": Command("!help", "List available commands.", "!help  OR !help !(command)" , self.show_help),
-            "!info": Command("!info", "Display user/system information.", "!info (filepath1) ... (filepathX)", self.show_info),
-            "!clear": Command("!clear", "Clear the screen.", "clear", self.clear_screen),
-            "!import": Command("!import", "Import a file", "import files/image.png", self.import_file),
-            "!configure": Command("!configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.update_settings),
+            "!help": Command("help", "List available commands.", "!help  OR !help !(command)" , self.show_help),
+            "!info": Command("info", "Display user/system information.", "!info", self.show_info),
+            "!clear": Command("clear", "Clear the screen.", "clear", self.clear_screen),
+            "!import": Command("import", "Import a file. Import is used in conjunction with references", "import files/image.png", self.import_file),
+            "!configure": Command("configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.update_settings),
+            "!references": Command("references", "Show local file references. Imported files can be used in prompting.", "!references || > 'Correct spelling errors from: {reference}.'", self.show_imports),
             #"": Command(),
         }
         return self.commands

@@ -1,6 +1,7 @@
 #jfr
 import os, sys
 sys.path.append("src")
+from prompt import Prompt
 from rich.console import Console
 from system import SystemSettings
 from src.commands import Commands
@@ -48,14 +49,14 @@ console.print("[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exi
 
 try:
     while True:    
-        prompt = console.input("[bold cyan][> [/bold cyan]")
-        head = prompt.split(" ")[0]
-        if prompt in ["!exit", "exit"]:
+        user_input = console.input("[bold cyan][> [/bold cyan]")
+        head = user_input.split(" ")[0]
+        if user_input in ["!exit", "exit"]:
             console.print("Exiting...")
             exit()
 
         elif head in commands:
-            args = prompt.split(" ")[1:]
+            args = user_input.split(" ")[1:]
             if not args:
                 result = commands[head].execute()
             else:
@@ -65,7 +66,8 @@ try:
                 console.print(f"[green]{result}[green]", end="")
 
         else:
-            response = user.generate_response(prompt)
+            sys_prompt = Prompt(user_input)
+            response = user.generate_response(sys_prompt.body)
             for chunk in response:
                 buffer = chunk.choices[0].delta.content
                 if buffer:
