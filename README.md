@@ -7,10 +7,15 @@ Using this program requires an [OpenAI account](https://platform.openai.com/) (n
 *Using gpt-4o-mini, my cumulative API calls have not even amounted to 1 cent. My use is generally restricted to testing the program though.*  
 Once downloaded, you'll need [openai](https://pypi.org/project/openai/) and [rich](https://pypi.org/project/rich/). Then you can run ```python cli.py``` to use the program.  
 Upon your first time running, it will ask for your API key, then it should prompt you to save it to your system.  
-If you run into any problems, please reach out to me or create an issue.
+If you run into any problems, please reach out to me or create an issue.  
+##### Using files:
+You can import file references into the program using the '!import' command.  
+Every import will be given a reference name, chosen by you upon importing.  
+To use an imported file, insert it into your prompt inside curly braces.  
+E.g. ```[> Correct spelling errors: {notes.txt}```  
 ##### To Do:
 - Settings persistence
 - Auto-install scripts (Container/Venv)
 - Image Generation
-- Image/File upload
+- Image/File upload (WIP)
 - Chats
