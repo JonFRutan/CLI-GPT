@@ -15,7 +15,7 @@ To use an imported file, insert it into your prompt inside curly braces.
 E.g.  
 ```
 [> !import docs/text/notes.txt
-src/tests/file1.txt found. Provide a reference name: notes
+docs/text/notes.txt found. Provide a reference name: notes
 [> Correct spelling errors: {notes} 
 ```  
 ##### To Do:
