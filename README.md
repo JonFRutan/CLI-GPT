@@ -13,9 +13,11 @@ You can import file references into the program using the '!import' command.
 Every import will be given a reference name, chosen by you upon importing.  
 To use an imported file, insert it into your prompt inside curly braces.  
 E.g.  
-```[> !import docs/text/notes.txt
+```
+[> !import docs/text/notes.txt
 src/tests/file1.txt found. Provide a reference name: notes
-[> Correct spelling errors: {notes}```  
+[> Correct spelling errors: {notes} 
+```  
 ##### To Do:
 - Settings persistence
 - Auto-install scripts (Container/Venv)
