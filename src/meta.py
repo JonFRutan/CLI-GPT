@@ -1,6 +1,5 @@
 #NOTE;
-# meta.py should become defunct. It should have it's various functions moved into different files/classes.
-
+# meta.py should store solely global data and perform console functions like clear screen.
 import os, platform
 
 OS_TYPE = platform.system()                                      #Current OS

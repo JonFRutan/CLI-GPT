@@ -1,4 +1,5 @@
 import meta
+#Command name, description, usage, and related function
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
         self.name = name
@@ -62,7 +63,7 @@ class Commands:
     #To add, remove, or change commands; modify this function.
     def populate_commands(self):
         self.commands = {
-            "!help": Command("help", "List available commands.", "!help  OR !help !(command)" , self.show_help),
+            "!help": Command("help", "List available commands.", "!help  OR !help (command)" , self.show_help),
             "!info": Command("info", "Display user/system information.", "!info", self.show_info),
             "!clear": Command("clear", "Clear the screen.", "clear", self.clear_screen),
             "!import": Command("import", "Import a file. Import is used in conjunction with references", "import files/image.png", self.import_file),

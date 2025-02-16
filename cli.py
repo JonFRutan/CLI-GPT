@@ -6,6 +6,7 @@ from rich.console import Console
 from creator import Creator
 from src.commands import Commands
 import meta as meta
+import environment as environment
 
 meta.clear_screen()
 
@@ -13,9 +14,11 @@ console = Console()
 console.print("[cyan]Connecting to API...[/cyan]")
 
 #FIXME; the user object should have persistent data, so if the system is highly tailored it will be saved.
-#Creating a basic client
+#Creating a default client
 user_creator = Creator("gpt-4o-mini", "Be a bit brief. When formatting text avoid markdown and use plain text.", None)
 
+#due time for this to be moved out of cli.py
+#FIXME ####################################################################################### FIXME#
 ready = True
 key = os.getenv("OPENAI_API_KEY")
 if key:
@@ -42,10 +45,13 @@ while not ready:
             save = input("Would you like to save the key to your system environment? (y/n)")
             if save.lower() == 'y':
                 meta.save_environment_variable(api_key)
-meta.clear_screen()
+#FIXME ####################################################################################### FIXME#
 
+meta.clear_screen()
+configuration = environment.Environment()
 commands_init = Commands(user_creator)
 commands = commands_init.commands
+
 console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
 
 try:
