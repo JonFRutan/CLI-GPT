@@ -7,8 +7,13 @@ class Prompt:
     def prompt_process (self, body):
         def replace(match):
             ref = match.group(1)
-            if ref in meta.imported_files:
-                return meta.retrieve_file(ref)
+            if ref in meta.IMPORTED_FILES:
+                file_contents = meta.retrieve_file(ref)
+                return f"\n#META: A FILE REFERRED TO AS {ref} STARTS HERE#\n" + file_contents + f"\n#META: THE FILE REFFERED TO AS {ref} ENDS HERE#\n"
             else:
-                return f"Error: {ref} not found."
-        return re.sub(meta.var_reg, replace, body)
+                return None
+        replacing_text = re.sub(meta.VAR_REGEX, replace, body)
+        if replacing_text: 
+            return replacing_text
+        else:
+            return 

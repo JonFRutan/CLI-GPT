@@ -2,16 +2,16 @@ import os, platform
 
 OS_TYPE = platform.system()                                      #Current OS
 MODEL_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models
-imported_files = {}                                              #Dictionary for files                                              
-var_reg = r"\{([a-zA-Z0-9]+)\}"                                  #For finding references
+IMPORTED_FILES = {}                                              #Dictionary for files                                              
+VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                #For finding references
 
 # FIXME; This is rudimentary and early categorizations of the types of files that can be uploaded.
 # Anything that can be read in line-by-line should be under TEXT_FILES
 # Image file types should be under IMAGE_FILES
 # For now, only select file types will be strictly defined...
 IMAGE_FILES = ["png", "jpg", "gif", "webp"]
-TEXT_FILES = ["txt", "doc", "md", "html", "json", "py"]
-#clears the screen, a bit of a hacky approach to an interface.
+TEXT_FILES = ["txt", "doc", "md", "html", "json", "py", "c", "xml"]
+
 def clear_screen():
     os.system("cls" if OS_TYPE=="Windows" else "clear")
 
@@ -40,15 +40,17 @@ def import_file(file_path):
     file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again
     #NOTE; you can also use os.path.splitext to get the filetype, but I already made this.
     reference_name = input(f"{file_path} found. Provide a reference name: ").strip()
-    imported_files[reference_name] = ImportedFile(reference_name, file_path, file_type)
+    IMPORTED_FILES[reference_name] = ImportedFile(reference_name, file_path, file_type)
     return
 
 def retrieve_file(ref):
-    if ref in imported_files:
-        working_file = imported_files[ref]
+    if ref in IMPORTED_FILES:
+        working_file = IMPORTED_FILES[ref]
         if working_file.type in TEXT_FILES:
             with open (working_file.path, 'r') as file:
                 return file.read()
+        elif working_file.type in IMAGE_FILES:  
+            pass     
     else:
         print(f"Reference {ref} unknown.")
 

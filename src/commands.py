@@ -43,7 +43,7 @@ class Commands:
 
     def import_file(self, *args):
         if not args:
-            return f"No arguments provided. Usage: {self.commands["!info"].syntax}"
+            return f"No arguments provided. Usage: {self.commands["!import"].syntax}"
         else:
             for path in args[0]:
                 meta.import_file(path)
@@ -53,7 +53,7 @@ class Commands:
 
     def show_imports(self, *args):
         appender = ""
-        for entry in meta.imported_files:
+        for entry in meta.IMPORTED_FILES:
             appender += entry + ", "
         return appender
     

@@ -7,8 +7,9 @@ from system import SystemSettings
 from src.commands import Commands
 import meta as meta
 
-console = Console()
 meta.clear_screen()
+
+console = Console()
 console.print("[cyan]Connecting to API...[/cyan]")
 
 #FIXME; the user object should have persistent data, so if the system is highly tailored it will be saved.
@@ -45,7 +46,7 @@ meta.clear_screen()
 
 commands_init = Commands(user)
 commands = commands_init.commands
-console.print("[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.\n")
+console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]\n")
 
 try:
     while True:    
@@ -63,7 +64,7 @@ try:
                 console.print(f"[bold blue]ARGS: {args}[/bold blue]")
                 result = commands[head].execute(*args)
             if result:
-                console.print(f"[green]{result}[green]", end="")
+                console.print(f"[bold green]{result}[/bold green]", end="")
 
         else:
             sys_prompt = Prompt(user_input)
