@@ -1,7 +1,10 @@
+#NOTE;
+# creator.py should offload it's settings into settings.py, and instead focus simply on calling the API for generation.
+
 import openai
 import meta as meta
 
-class SystemSettings:
+class Creator:
     def __init__(self, model, system_settings, ai_client):
         self.model = model
         self.system_settings = system_settings

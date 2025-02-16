@@ -19,8 +19,8 @@ docs/text/notes.txt found. Provide a reference name: notes
 [> Correct spelling errors: {notes} 
 ```  
 ##### To Do:
-- Settings persistence
+- Settings persistence (Currently WIP)
+- File upload (Currently WIP)
 - Auto-install scripts (Container/Venv)
 - Image Generation
-- Image/File upload (WIP)
 - Chats

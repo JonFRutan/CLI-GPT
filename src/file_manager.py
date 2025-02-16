@@ -1,0 +1,3 @@
+#FIXME; File import/retrieval should be handled here. Refactor away from meta.py...
+class FileManager:
+    pass

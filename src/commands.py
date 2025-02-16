@@ -1,5 +1,4 @@
-import meta, prompt
-
+import meta
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
         self.name = name
@@ -17,20 +16,19 @@ class Command:
         else:
             raise ValueError(f"No action defined for {self.name}")
 
-
-#NOTE: When incorporating a library for a CLI interface commands like clear_screen may be defunct.
 #Command functions
+#FIXME; user_creator will be defunct. All references to it in terms of user settings should be refacoted into settings.py and derivate classes
 class Commands:
-    def __init__(self, user):
-        self.user = user
-        self.populate_commands(user)
+    def __init__(self, user_creator):
+        self.user_creator = user_creator
+        self.populate_commands()
     
     def clear_screen(self, *args):
         meta.clear_screen()
         return "[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands."
 
     def show_info(self, *args):
-        return self.user.print_settings()
+        return self.user_creator.print_settings()
 
     def show_help(self, *args):
         if not args:
@@ -49,17 +47,20 @@ class Commands:
                 meta.import_file(path)
     
     def update_settings(self):
-        self.user.update_settings()
+        self.user_creator.update_settings()
 
     def show_imports(self, *args):
         appender = ""
         for entry in meta.IMPORTED_FILES:
-            appender += entry + ", "
+            file_ref = meta.IMPORTED_FILES[entry]
+            appender += f"{file_ref.ref} ({file_ref.path}), "
+        if appender == "":
+            return "No references yet. Use !import"
         return appender
     
     #List of command items
     #To add, remove, or change commands; modify this function.
-    def populate_commands(self, user):
+    def populate_commands(self):
         self.commands = {
             "!help": Command("help", "List available commands.", "!help  OR !help !(command)" , self.show_help),
             "!info": Command("info", "Display user/system information.", "!info", self.show_info),

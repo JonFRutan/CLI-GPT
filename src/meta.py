@@ -1,3 +1,6 @@
+#NOTE;
+# meta.py should become defunct. It should have it's various functions moved into different files/classes.
+
 import os, platform
 
 OS_TYPE = platform.system()                                      #Current OS
