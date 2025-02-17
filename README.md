@@ -8,6 +8,7 @@ I have three goals with CLI-GPT:
  - *Simplicity* - CLI-GPT will be simple and intuitive.
  - *Customization* - CLI-GPT will be highly modifiable. 
  - *Universality* - CLI-GPT will run on anything.  
+
 CLI-GPT has just started, and we have a long way to go before it reaches these goals.  
 Ideally, CLI-GPT will download to any device (embedded, GUI-less, etc.) and be tailored to any need; such as automating tasks or just answering questions.   
 
