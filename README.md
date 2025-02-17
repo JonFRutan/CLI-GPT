@@ -1,16 +1,16 @@
 ## CLI-GPT
 CLI-GPT is a simple command-line frontend for using OpenAI's API.  
-OpenAI's API is quite a bit more powerful than the standard ChatGPT frontend, allowing more customization to the model and fine control over generation aspects.  
-I started CLI-GPT for use on a (console-only) FreeBSD install.
+OpenAI's API is quite a bit more powerful than the standard ChatGPT frontend, allowing more customization to the model and fine control over generation aspects. I started CLI-GPT for use on a headless FreeBSD system.  
 
 ##### Goals  
 I have three goals with CLI-GPT:    
- - *Simplicity* - CLI-GPT will be simple and intuitive.
+ - *Simplicity*    - CLI-GPT will be simple and intuitive.
  - *Customization* - CLI-GPT will be highly modifiable. 
- - *Universality* - CLI-GPT will run on anything.  
+ - *Compatibility* - CLI-GPT will run on anything.  
 
 CLI-GPT has just started, and we have a long way to go before it reaches these goals.  
 Ideally, CLI-GPT will download to any device (embedded, GUI-less, etc.) and be tailored to any need; such as automating tasks or just answering questions.   
+*In the future, I would like to refactor from Python into something like Rust, Zig, or C*  
 
 ##### Setup
 Using this program requires an [OpenAI account](https://platform.openai.com/) (not to be confused with a ChatGPT account), and will require an API key which can be found [here](https://platform.openai.com/api-keys). This requires you add some funds to the account in order to qualify for making API calls.  
