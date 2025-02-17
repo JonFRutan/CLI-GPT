@@ -1,89 +1,68 @@
 #jfr
 import os, sys
 sys.path.append("src")
-from prompt import Prompt
+from prompt import PromptGen
 from rich.console import Console
 from creator import Creator
 from src.commands import Commands
 import meta as meta
-import environment as environment
+import environment as env
 
-meta.clear_screen()
-
-console = Console()
-console.print("[cyan]Connecting to API...[/cyan]")
-
-#FIXME; the user object should have persistent data, so if the system is highly tailored it will be saved.
-#Creating a default client
-user_creator = Creator("gpt-4o-mini", "Be a bit brief. When formatting text avoid markdown and use plain text.", None)
-
-#due time for this to be moved out of cli.py
-#FIXME ####################################################################################### FIXME#
-ready = True
-key = os.getenv("OPENAI_API_KEY")
-if key:
-    user_creator.validate_key(key)
-    if not user_creator.ai_client:
-        ready = False
-if not key:
-    ready = False
-
-meta.clear_screen()
-
-#This loop executes if the local environment key either doesn't exist, or doesn't work.
-while not ready:
-    api_key = input("Please provide your OpenAI API key (? for help, x for exit.): ")
-    if api_key == "?":
-        console.print("Navigate to platform.openai.com, sign in, under PROJECT is an API key section.")
-    elif api_key == 'x':
-        console.print("Exiting...")
-        exit()
-    else:
-        user_creator.validate_key(api_key)
-        if user_creator.ai_client:
-            ready = True
-            save = input("Would you like to save the key to your system environment? (y/n)")
-            if save.lower() == 'y':
-                meta.save_environment_variable(api_key)
-#FIXME ####################################################################################### FIXME#
-
-meta.clear_screen()
-configuration = environment.Environment()
-commands_init = Commands(user_creator)
-commands = commands_init.commands
-
-console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
-
-try:
-    while True:    
-        user_input = console.input("[bold cyan][> [/bold cyan]")
-        head = user_input.split(" ")[0]
-        if user_input in ["!exit", "exit"]:
-            console.print("Exiting...")
+class CLIGPT:
+    def __init__(self):
+        #environment.py
+        self.environment = env.Environment()
+        self.commands = Commands(self.environment).commands
+        meta.clear_screen()
+        #Rich console
+        self.console = Console()
+        self.console.print("[cyan]Connecting to API...[/cyan]")
+        #This may be skipped if an (authorized) environment is imported?
+        self.ready = True
+        self.key = os.getenv("OPENAI_API_KEY")
+        if not self.key:
+            self.environment.authenticate()
+        if self.key:
+            if not self.environment.creator.validate_key(self.key):
+                self.environment.authenticate()
+        meta.clear_screen()
+        self.console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
+    
+    def run(self):
+        try:
+            prompt = PromptGen(self.environment.file_manager)
+            while True:    
+                #Look for another way to handle inputs.
+                user_input = self.console.input("[bold cyan][> [/bold cyan]")
+                head = user_input.split(" ")[0]
+                if user_input in ["!exit", "exit"]:
+                    self.console.print("Exiting...")
+                    exit()
+                
+                elif head in self.commands:
+                    args = user_input.split(" ")[1:]
+                    if not args:
+                        result = self.commands[head].execute()
+                    else:
+                        self.console.print(f"[bold blue]ARGS: {args}[/bold blue]")
+                        result = self.commands[head].execute(*args)
+                    if result:
+                        self.console.print(f"[bold green]{result}[/bold green]", end="")
+                
+                else:
+                    #FIXME;
+                    api_prompt = prompt.generate(user_input)
+                    response = self.environment.creator.generate_response(api_prompt)
+                    for chunk in response:
+                        buffer = chunk.choices[0].delta.content
+                        if buffer:
+                           self.console.print(f"[white]{buffer}[white]", end="")
+                self.console.print()
+        except KeyboardInterrupt:
+            print("Exiting")
             exit()
 
-        elif head in commands:
-            args = user_input.split(" ")[1:]
-            if not args:
-                result = commands[head].execute()
-            else:
-                console.print(f"[bold blue]ARGS: {args}[/bold blue]")
-                result = commands[head].execute(*args)
-            if result:
-                console.print(f"[bold green]{result}[/bold green]", end="")
-
-        else:
-            sys_prompt = Prompt(user_input)
-            response = user_creator.generate_response(sys_prompt.body)
-            for chunk in response:
-                buffer = chunk.choices[0].delta.content
-                if buffer:
-                    console.print(buffer, end="")
-        console.print()
-except KeyboardInterrupt:
-    print("Exiting")
-    exit()
-
-
-#if __name__ == "__main__":
-#    main()
+if __name__ == "__main__":
+    cli_gpt = CLIGPT()
+    #Pre-processing stuff...
+    cli_gpt.run()

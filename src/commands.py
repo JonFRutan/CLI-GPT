@@ -18,18 +18,19 @@ class Command:
             raise ValueError(f"No action defined for {self.name}")
 
 #Command functions
-#FIXME; user_creator will be defunct. All references to it in terms of user settings should be refacoted into settings.py and derivate classes
+#FIXME; user_creator will be defunct. All references to it in terms of user settings should be refactored into environment.py other classes
 class Commands:
-    def __init__(self, user_creator):
-        self.user_creator = user_creator
+    def __init__(self, environment):
+        self.environment = environment
         self.populate_commands()
     
     def clear_screen(self, *args):
         meta.clear_screen()
         return "[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands."
 
+    #FIXME - This command is too general, it should be made more robust.
     def show_info(self, *args):
-        return self.user_creator.print_settings()
+        return self.environment.print_settings()
 
     def show_help(self, *args):
         if not args:
@@ -40,20 +41,22 @@ class Commands:
         else:
             return "Unknown command"
 
+    #return any issues that occur during importing
     def import_file(self, *args):
         if not args:
             return f"No arguments provided. Usage: {self.commands["!import"].syntax}"
         else:
             for path in args[0]:
-                meta.import_file(path)
+                self.environment.file_manager.import_file(path)
     
     def update_settings(self):
         self.user_creator.update_settings()
 
+    #FIXME: still using outdated meta to 
     def show_imports(self, *args):
         appender = ""
-        for entry in meta.IMPORTED_FILES:
-            file_ref = meta.IMPORTED_FILES[entry]
+        for entry in self.environment.file_manager.imported_files:
+            file_ref = self.environment.file_manager.imported_files[entry]
             appender += f"{file_ref.ref} ({file_ref.path}), "
         if appender == "":
             return "No references yet. Use !import"

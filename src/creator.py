@@ -6,13 +6,13 @@ import meta as meta
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
-    def __init__(self, model, system_settings, ai_client):
-        self.model = model
-        self.system_settings = system_settings
-        self.ai_client = ai_client
+    def __init__(self, prompt_config):
+        self.model = prompt_config.model
+        self.sys_prompt = prompt_config.sys_prompt
+        self.ai_client = prompt_config.api_client
     
     def print_settings(self):
-        return (f"Model: {self.model} | System: {self.system_settings}")
+        return (f"Model: {self.model} | System: {self.sys_prompt}")
     
     def update_settings(self):
         self.print_settings()
@@ -37,7 +37,7 @@ class Creator:
             elif new_system == '?':
                 print("The system settings affects the models behavior.\nThe default is 'Be a bit brief. When formatting text avoid markdown and use plain text.'\nYou can modify this to your liking, e.g. 'Your responses will strictly be in JSON format.'")
             else:
-                self.system_settings = new_system
+                self.sys_prompt = new_system
                 break
 
     def generate_response(self, prompt):
@@ -45,7 +45,7 @@ class Creator:
             model=f"{self.model}",
             store=True,
             messages=[
-            {"role": "system", "content": f"{self.system_settings}"},
+            {"role": "system", "content": f"{self.sys_prompt}"},
             {"role": "user", "content": f"{prompt}"}],
             stream=True,
             #max_tokens = 200, #Response length (higher -> longer)
@@ -66,9 +66,10 @@ class Creator:
             test_client = openai.OpenAI(api_key=api_key)
             test_client.models.list()
             self.ai_client = test_client
+            return True
         except openai.BadRequestError:
             print("Invalid API key.")
-            self.ai_client = None
+            return False
         except Exception as e:
             print(f"API Issue. Try reentering your API key.\nError: {e}")
-            self.ai_client = None
+            return False

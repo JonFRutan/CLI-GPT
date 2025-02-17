@@ -1,5 +1,6 @@
 #NOTE;
-# meta.py should store solely global data and perform console functions like clear screen.
+# meta.py should store global data, perform modifications outside the environment, 
+# and perform console functions like clear screen.
 import os, platform
 
 OS_TYPE = platform.system()                                      #Current OS
@@ -34,30 +35,3 @@ def save_environment_variable(api_key):
         print(f"API key saved. Restart your terminal to update it.")
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
-
-def import_file(file_path):
-    if not os.path.isfile(file_path):
-        print (f"File {file_path} doesn't exist.")
-        return
-    file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again
-    #NOTE; you can also use os.path.splitext to get the filetype, but I already made this.
-    reference_name = input(f"{file_path} found. Provide a reference name: ").strip()
-    IMPORTED_FILES[reference_name] = ImportedFile(reference_name, file_path, file_type)
-    return
-
-def retrieve_file(ref):
-    if ref in IMPORTED_FILES:
-        working_file = IMPORTED_FILES[ref]
-        if working_file.type in TEXT_FILES:
-            with open (working_file.path, 'r') as file:
-                return file.read()
-        elif working_file.type in IMAGE_FILES:  
-            pass     
-    else:
-        print(f"Reference {ref} unknown.")
-
-class ImportedFile:
-    def __init__(self, ref, path, type):
-        self.ref = ref
-        self.path = path
-        self.type = type
