@@ -29,12 +29,13 @@ class Commands:
         return "[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands."
 
     #FIXME - This command is too general, it should be made more robust.
+    # Instead of calling the creator object, info should accept arguments as to specific details or subcategoires like "PromptSettings" or "UserSettings"
     def show_info(self, *args):
-        return self.environment.print_settings()
+        return self.environment.creator.print_settings()
 
     def show_help(self, *args):
         if not args:
-            return "Available commands:\nType !help !(any command) to learn more about a specific commmand. \n" + "\n".join(f"'{cmd.name}' - {cmd.description}" for cmd in self.commands.values())
+            return "Available commands:\nType !help (any command) to learn more about a specific commmand. \n" + "\n".join(f"'{cmd.name}' - {cmd.description}" for cmd in self.commands.values())
         c = "!" + args[0][0] 
         if c in self.commands:
             return f"{self.commands[c].name} - {self.commands[c].description} \nUsage: {self.commands[c].syntax}"
@@ -49,8 +50,9 @@ class Commands:
             for path in args[0]:
                 self.environment.file_manager.import_file(path)
     
+    #FIXME; This currently can only be used to change creator prompt settings, this should instead call environment.update_settings()
     def update_settings(self):
-        self.user_creator.update_settings()
+        self.environment.creator.update_settings()
 
     #FIXME: still using outdated meta to 
     def show_imports(self, *args):

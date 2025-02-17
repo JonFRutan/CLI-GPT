@@ -10,32 +10,35 @@ import environment as env
 
 class CLIGPT:
     def __init__(self):
-        #environment.py
-        self.environment = env.Environment()
-        self.commands = Commands(self.environment).commands
-        meta.clear_screen()
         #Rich console
         self.console = Console()
+        self.environment = env.Environment(self.console)
+        self.commands = Commands(self.environment).commands
+        meta.clear_screen()
         self.console.print("[cyan]Connecting to API...[/cyan]")
         #This may be skipped if an (authorized) environment is imported?
         self.ready = True
         self.key = os.getenv("OPENAI_API_KEY")
+        saved = None
         if not self.key:
-            self.environment.authenticate()
+            saved = self.environment.authenticate()
         if self.key:
             if not self.environment.creator.validate_key(self.key):
-                self.environment.authenticate()
+                saved = self.environment.authenticate()
+        if saved:
+            self.console.print(f"[bold red]{saved}[/bold red]")
         meta.clear_screen()
         self.console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
     
     def run(self):
         try:
+            #PromptGen should be moved under the Creator object.
             prompt = PromptGen(self.environment.file_manager)
             while True:    
-                #Look for another way to handle inputs.
+                #NOTE; Look for another way to handle inputs.
                 user_input = self.console.input("[bold cyan][> [/bold cyan]")
                 head = user_input.split(" ")[0]
-                if user_input in ["!exit", "exit"]:
+                if head in ["!exit", "exit"]:
                     self.console.print("Exiting...")
                     exit()
                 

@@ -9,7 +9,7 @@ import json
 # JSON will be used for settings storage, as it's easily maintainable and a user may edit it manually if need be.
 
 class Environment:
-    def __init__(self):
+    def __init__(self, console):
         #Upon init, Environment should check for a JSON file containing already existing modifications.
         self.prompt_config = None
         self.user_settings = None
@@ -38,11 +38,11 @@ class Environment:
                 if self.creator.ai_client:
                     save = input("Would you like to save the key as a system environment variable? (y/n)")
                     if save.lower() == 'y':
-                        meta.save_environment_variable(api_key)
-                return
+                        return meta.save_environment_variable(api_key)
+                return None
 
 
-class UserSettings(Enum):
+class UserSettings:
     pass
 
 class PromptConfig:
@@ -50,4 +50,6 @@ class PromptConfig:
         self.model = model
         self.sys_prompt = sys_prompt
         self.api_client = api_client
-        
+    #This should do what Creator.update_settings does.
+    def prompt_configure(self, model, sys_prompt, api_client):
+        pass

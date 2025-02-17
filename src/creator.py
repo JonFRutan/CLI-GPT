@@ -1,6 +1,6 @@
 #NOTE;
 # creator.py should offload it's settings into settings.py, and instead solely call the API for generation.
-
+# creator should hold the PromptGen object.
 import openai
 import meta as meta
 
@@ -9,11 +9,13 @@ class Creator:
     def __init__(self, prompt_config):
         self.model = prompt_config.model
         self.sys_prompt = prompt_config.sys_prompt
+        #Should api_client be a part of prompt_config? This should be changed into solely a Creator attribute.
         self.ai_client = prompt_config.api_client
     
     def print_settings(self):
         return (f"Model: {self.model} | System: {self.sys_prompt}")
     
+    #FIXME; This function should solely update values, user input should be handled in environment.py
     def update_settings(self):
         self.print_settings()
         print("Updating settings- type '#' to leave a setting unchanged.")

@@ -28,10 +28,8 @@ def save_environment_variable(api_key):
        with open(shell, "a") as console:
             console.write(f'\nexport OPENAI_API_KEY="{api_key}"\n')
             print(f"API key saved. Restart your terminal to update it.")
-
     elif OS_TYPE == "Windows":
         os.system(f'setx OPENAI_API_KEY "{api_key}"')
-
-        print(f"API key saved. Restart your terminal to update it.")
+        return "API key saved. Restart your terminal to update it."
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
