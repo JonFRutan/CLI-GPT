@@ -1,5 +1,6 @@
 #FIXME; File import/retrieval should be handled here. Refactor away from meta.py...
-import os, meta as meta
+import os 
+import src.meta as meta
 class ImportedFile:
     def __init__(self, ref, path, type):
         self.ref = ref

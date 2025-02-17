@@ -1,4 +1,4 @@
-import meta
+import src.meta as meta
 #Command name, description, usage, and related function
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
@@ -20,9 +20,10 @@ class Command:
 #Command functions
 #FIXME; user_creator will be defunct. All references to it in terms of user settings should be refactored into environment.py other classes
 class Commands:
-    def __init__(self, environment):
+    def __init__(self, environment, creator):
         self.environment = environment
-        self.populate_commands()
+        self.creator = creator
+        self.commands = self.populate_commands()
     
     def clear_screen(self, *args):
         meta.clear_screen()
@@ -31,7 +32,7 @@ class Commands:
     #FIXME - This command is too general, it should be made more robust.
     # Instead of calling the creator object, info should accept arguments as to specific details or subcategoires like "PromptSettings" or "UserSettings"
     def show_info(self, *args):
-        return self.environment.creator.print_settings()
+        return self.environment.print_settings()
 
     def show_help(self, *args):
         if not args:
@@ -52,7 +53,10 @@ class Commands:
     
     #FIXME; This currently can only be used to change creator prompt settings, this should instead call environment.update_settings()
     def update_settings(self):
-        self.environment.creator.update_settings()
+        self.environment.update_settings()
+        #Refreshing every time for now
+        self.creator.refresh(self.environment.prompt_config)
+        return self.clear_screen()
 
     #FIXME: still using outdated meta to 
     def show_imports(self, *args):
@@ -67,7 +71,7 @@ class Commands:
     #List of command items
     #To add, remove, or change commands; modify this function.
     def populate_commands(self):
-        self.commands = {
+        commands = {
             "!help": Command("help", "List available commands.", "!help  OR !help (command)" , self.show_help),
             "!info": Command("info", "Display user/system information.", "!info", self.show_info),
             "!clear": Command("clear", "Clear the screen.", "clear", self.clear_screen),
@@ -76,4 +80,4 @@ class Commands:
             "!references": Command("references", "Show local file references. Imported files can be used in prompting.", "!references || > 'Correct spelling errors from: {reference}.'", self.show_imports),
             #"": Command(),
         }
-        return self.commands
+        return commands

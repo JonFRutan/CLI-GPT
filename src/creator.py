@@ -2,53 +2,32 @@
 # creator.py should offload it's settings into settings.py, and instead solely call the API for generation.
 # creator should hold the PromptGen object.
 import openai
-import meta as meta
+from src.prompt import PromptGen
+import src.meta as meta
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
-    def __init__(self, prompt_config):
+    def __init__(self, prompt_config, file_manager):
         self.model = prompt_config.model
         self.sys_prompt = prompt_config.sys_prompt
         #Should api_client be a part of prompt_config? This should be changed into solely a Creator attribute.
-        self.ai_client = prompt_config.api_client
+        self.ai_client = None
+        self.prompter = PromptGen(file_manager)
     
-    def print_settings(self):
-        return (f"Model: {self.model} | System: {self.sys_prompt}")
-    
-    #FIXME; This function should solely update values, user input should be handled in environment.py
-    def update_settings(self):
-        self.print_settings()
-        print("Updating settings- type '#' to leave a setting unchanged.")
-
-        #Model
-        while True:
-            new_model = input("What model would you like to use? (Type '?' to list options) -> ")
-            if new_model == '#':
-                break
-            elif new_model == '?':
-                print(f"Ordered by token pricing: {meta.MODEL_LIST}")
-            elif new_model in meta.MODEL_LIST:
-                self.model = new_model
-                break
-
-        #System
-        while True:
-            new_system = input("Provide a new system prompt ('?' for help) -> ")
-            if new_system == '#':
-                break
-            elif new_system == '?':
-                print("The system settings affects the models behavior.\nThe default is 'Be a bit brief. When formatting text avoid markdown and use plain text.'\nYou can modify this to your liking, e.g. 'Your responses will strictly be in JSON format.'")
-            else:
-                self.sys_prompt = new_system
-                break
+    def refresh(self, prompt_config):
+        self.model = prompt_config.model
+        self.sys_prompt = prompt_config.sys_prompt
 
     def generate_response(self, prompt):
+        if not self.ai_client:
+            return "API Client Error."
+        full_prompt = self.prompter.generate(prompt)
         response = self.ai_client.chat.completions.create(
             model=f"{self.model}",
             store=True,
             messages=[
             {"role": "system", "content": f"{self.sys_prompt}"},
-            {"role": "user", "content": f"{prompt}"}],
+            {"role": "user", "content": f"{full_prompt}"}],
             stream=True,
             #max_tokens = 200, #Response length (higher -> longer)
             #temperature = .5, #Randomness (0.0 is deterministic, 1.0 is very random)
@@ -75,3 +54,21 @@ class Creator:
         except Exception as e:
             print(f"API Issue. Try reentering your API key.\nError: {e}")
             return False
+        
+    def authenticate(self):
+        while True:
+            api_key = input("Please provide your OpenAI API key (? for help, x to exit.): ")
+            if api_key == "?":
+                print("Navigate to platform.openai.com, sign in, under PROJECT is an API key section.")
+            elif api_key.lower() == 'x':
+                print("Exiting...")
+                exit()
+            else:
+                if self.validate_key(api_key):
+                    save = input("Would you like to save the key as a system environment variable? (y/n)")
+                    if save.lower() == 'y':
+                        return meta.save_environment_variable(api_key)
+                    else: 
+                        return "API Key Accepted."
+                else:
+                    print("Something went wrong...")

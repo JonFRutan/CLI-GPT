@@ -1,4 +1,5 @@
-import re, meta
+import re
+import src.meta as meta
 #is prompt.py even needed? Why not handle it all in creator.py?
 class PromptGen:
     def __init__(self, file_manager):
