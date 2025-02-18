@@ -1,29 +1,25 @@
 #NOTE;
 # creator.py should offload it's settings into settings.py, and instead solely call the API for generation.
 # creator should hold the PromptGen object.
-import openai
-from src.prompt import PromptGen
+import openai, re
 import src.meta as meta
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
-    def __init__(self, prompt_config, file_manager):
-        self.model = prompt_config.model
-        self.sys_prompt = prompt_config.sys_prompt
-        #Should api_client be a part of prompt_config? This should be changed into solely a Creator attribute.
-        self.ai_client = None
-        self.prompter = PromptGen(file_manager)
+    def __init__(self, environment, key):
+        self.payloader = Payload(environment.file_manager, environment.payload_config)
+        if not key or not self.validate_key(key):
+            return self.authenticate()
     
-    def refresh(self, prompt_config):
-        self.model = prompt_config.model
-        self.sys_prompt = prompt_config.sys_prompt
+    def refresh(self, payload_config):
+        self.payload_config = payload_config
 
     def generate_response(self, prompt):
         if not self.ai_client:
             return "API Client Error."
-        full_prompt = self.prompter.generate(prompt)
+        full_prompt = self.payloader.generate(prompt)
         response = self.ai_client.chat.completions.create(
-            model=f"{self.model}",
+            model=f"{self.payload_config.model}",
             store=True,
             messages=[
             {"role": "system", "content": f"{self.sys_prompt}"},
@@ -72,3 +68,34 @@ class Creator:
                         return "API Key Accepted."
                 else:
                     print("Something went wrong...")
+
+#Payload will house a tuple of all necessary settings and file uploads
+#It should serve directly into generate_response as such: creator.generate_response(payload)
+class Payload:
+    def __init__(self, file_manager, payload_config):
+        self.file_manager = file_manager
+        self.model = payload_config.model
+        self.sys_prompt = payload_config.sys_prompt
+        self.stream = payload_config.stream
+        
+    def generate(self, prompt):
+        return self.prompter.generate(prompt)
+
+    def fr(self, file_manager, payload_config):
+        self.file_manager = file_manager
+    
+    def prompt_generate (self, body):
+        def replace(match):
+            ref = match.group(1)
+            #FIXME - CHANGE FROM meta INTO file_manager
+            if ref in self.file_manager.imported_files:
+                file_contents = self.file_manager.retrieve_file(ref)
+                #Meta context?
+                return file_contents
+            else:
+                return None
+        replacing_text = re.sub(meta.VAR_REGEX, replace, body)
+        if replacing_text: 
+            return replacing_text
+        else:
+            return 

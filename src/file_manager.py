@@ -1,11 +1,14 @@
-#FIXME; File import/retrieval should be handled here. Refactor away from meta.py...
 import os 
 import src.meta as meta
+import base64
+
 class ImportedFile:
     def __init__(self, ref, path, type):
         self.ref = ref
         self.path = path
         self.type = type
+        if type in meta.IMAGE_FILES:
+            self.base_value = None
 
 class FileManager:
     def __init__(self):
@@ -29,6 +32,9 @@ class FileManager:
                 with open (working_file.path, 'r') as file:
                     return file.read()
             elif working_file.type in meta.IMAGE_FILES:  
-                pass     
+                with open (working_file.path, "rb") as image:
+                    return base64.b64encode(image.read()).decode("utf-8")
+            #NOTE; Image uploads are handled differently by the API, so this won't work
+            #OpenAI's API handles image uploads as seperate parts of the payload.
         else:
             print(f"Reference {ref} unknown.")

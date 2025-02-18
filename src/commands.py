@@ -55,7 +55,7 @@ class Commands:
     def update_settings(self):
         self.environment.update_settings()
         #Refreshing every time for now
-        self.creator.refresh(self.environment.prompt_config)
+        self.creator.refresh(self.creator)
         return self.clear_screen()
 
     #FIXME: still using outdated meta to 
