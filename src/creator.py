@@ -17,7 +17,8 @@ class Creator:
     def generate_response(self, prompt):
         if not self.ai_client:
             return "API Client Error."
-        full_prompt = self.payloader.generate(prompt)
+        payload = self.payloader.generate(prompt)
+        #response = self.ai_client.chat.completions.create(payload)
         response = self.ai_client.chat.completions.create(
             model=f"{self.payload_config.model}",
             store=True,
