@@ -71,6 +71,7 @@ class Creator:
 
 #Payload will house a tuple of all necessary settings and file uploads
 #It should serve directly into generate_response as such: creator.generate_response(payload)
+#Does Payload need to redefine every option? Can it just include a modifiable copy of the provided payload_config?
 class Payload:
     def __init__(self, file_manager, payload_config):
         self.file_manager = file_manager
@@ -79,15 +80,13 @@ class Payload:
         self.stream = payload_config.stream
         
     def generate(self, prompt):
-        return self.prompter.generate(prompt)
-
-    def fr(self, file_manager, payload_config):
-        self.file_manager = file_manager
+        #Check for image file imports
+        #If image file imports included, modify sys_prompt to include a file_include argument
+        return self.generate_prompt(prompt)
     
-    def prompt_generate (self, body):
+    def generate_prompt (self, body):
         def replace(match):
             ref = match.group(1)
-            #FIXME - CHANGE FROM meta INTO file_manager
             if ref in self.file_manager.imported_files:
                 file_contents = self.file_manager.retrieve_file(ref)
                 #Meta context?

@@ -55,8 +55,7 @@ class PromptProfile:
     response_format: str = "text"
     seed: Optional[int] = None
 
-
-
+    #NOTE; update_settings should accept an argument(?) for settings to iterate through and change.
     def update_settings(self, console):
         console.print("Updating prompt settings- type '#' to leave a setting unchanged.")
         #model
@@ -79,22 +78,3 @@ class PromptProfile:
             else:
                 self.sys_prompt = new_system
                 break
-#Settings related to the prompt sent to the API. It eventually should fill out the following settings:
-        #response = self.ai_client.chat.completions.create(
-            #model=f"{self.model}",
-            #store=True,
-            #messages=[
-            #{"role": "system", "content": f"{self.sys_prompt}"},
-            #{"role": "user", "content": f"{full_prompt}"}],
-            #stream=True,
-            #max_tokens = 200, #Response length (higher -> longer)
-            #temperature = .5, #Randomness (0.0 is deterministic, 1.0 is very random)
-            #top_p = 1.0, #Nucleus sampling (0.0 only considers most likely tokens)
-            #frequency_penalty = 0.0, #Penalty value to frequent words (-2.0 to 2.0, higher is more penalty to repetition)
-            #presence_penalty = 0.0, #Encourages new topic introduction (-2.0 to 2.0, higher makes it more diverse)
-            #stop=["###", "\n\n"], #Stopping sequence, cuts responses early if encountered.
-            #logprobs = None, #
-            #echo - False, #True will include the prompt in the response, false doesn't.
-            #response_format = "json", #Makes response strictly adhere to a given format
-            #seed=40, #Deterministic responses for the same inputs
-        #)
