@@ -2,11 +2,14 @@
 # meta.py should store global data, perform modifications outside the environment, 
 # and perform console functions like clear screen.
 import os, platform
+from src.environment import PromptProfile
+from prompt_toolkit.styles import Style
 
 #Global, final values
 OS_TYPE = platform.system()                                           #Current OS
 API_MODELS_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models                                       
 VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                     #For finding references
+DEFAULT_PROFILE = PromptProfile()                                     #For storing default values
 
 #IMAGE_FILES must be convertible into base64
 IMAGE_FILES = [
@@ -17,6 +20,10 @@ IMAGE_FILES = [
     "bmp", 
     "tiff",
 ]
+
+input_style = Style.from_dict({
+    'prompt': 'bold cyan'
+})
 
 #TEXT_FILES must be readable and transcribable line-by-line
 TEXT_FILES = [

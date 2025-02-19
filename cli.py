@@ -4,7 +4,7 @@ import os
 from rich.console import Console
 from prompt_toolkit import prompt
 from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.styles import Style
+#from prompt_toolkit.styles import Style
 
 from src.commands import Commands
 from src.environment import Environment
@@ -16,6 +16,7 @@ import src.meta as meta
 # 2. Instance alternative to repl(), CLIGPT should serve also as an instiatble object, and forego the repl() function.
 #    This would greatly improve it's ability to automate tasks.
 class CLIGPT:
+    #Should console exist only when running repl? 
     def __init__(self):
         #Rich console
         self.console = Console()
@@ -33,13 +34,13 @@ class CLIGPT:
         self.commands = Commands(self.environment, self.creator).commands
         self.console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
     
+    def generate(self, prompt, *args):
+        pass
+
     def repl(self):
-        input_style = Style.from_dict({
-            'prompt': 'bold cyan'
-        })
         try:
             while True:    
-                user_input = prompt(f">> ", history=self.history, style=input_style)
+                user_input = prompt(f">> ", history=self.history, style=meta.input_style)
                 head = user_input.split(" ")[0]
                 if head in ["!exit", "!quit"]:
                     exit()
@@ -58,6 +59,7 @@ class CLIGPT:
                         buffer = chunk.choices[0].delta.content
                         if buffer:
                           self.console.print(f"[bright_white]{buffer}[/bright_white]", end="")
+                
                 self.console.print()
         except KeyboardInterrupt:
             exit()

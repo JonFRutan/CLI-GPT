@@ -1,0 +1,15 @@
+{
+    "model": "gpt-4o-mini",
+    "sys_prompt": "Return only the character count of the user's prompt.",
+    "stream": true,
+    "store": true,
+    "max_tokens": 10,
+    "temperature": 0.2,
+    "top_p": 1.0,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0,
+    "stop": null,
+    "logprobs": null,
+    "response_format": "text",
+    "seed": 1
+}

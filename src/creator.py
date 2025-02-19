@@ -3,18 +3,14 @@
 # creator should hold the PromptGen object.
 import openai, re
 import src.meta as meta
-import itertools
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
     def __init__(self, environment, key):
-        self.payloader = Payload(environment.file_manager, environment.payload_config)
+        self.payloader = Payload(environment.file_manager, environment.prompt_config)
         if not key or not self.validate_key(key):
             return self.authenticate()
     
-    def refresh(self, payload_config):
-        self.payload_config = payload_config
-
     def generate_response(self, prompt):
         if not self.ai_client:
             return "API Client Error."
@@ -63,7 +59,7 @@ class Payload:
     def __init__(self, file_manager, payload_config):
         self.file_manager = file_manager
         self.payload_config = payload_config.to_dict()
-        
+    
     def generate(self, prompt):
         #Check for image file imports
         #If image file imports included, modify sys_prompt to include a file_include argument
@@ -80,12 +76,6 @@ class Payload:
 
         payload = {**configs, "messages": messages}
         return payload
-    
-    def unroll(self, **kwargs):
-        pass
-
-    def preview(self):
-        pass
 
     def generate_prompt (self, body):
         def replace(match):
