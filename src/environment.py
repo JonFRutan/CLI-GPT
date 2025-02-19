@@ -13,7 +13,7 @@ class Environment:
     def __init__(self, console):
         self.console = console
         #Upon init, Environment should check for a JSON file containing already existing modifications.
-        self.payload_config = None
+        self.payload_config = PromptProfile()
         self.user_settings = None
         self.file_manager = filem.FileManager()
         #TRY IMPORTING A SETTINGS JSON HERE FOR PROMPT_CONFIG
@@ -44,6 +44,7 @@ class PromptProfile:
     model: str = "gpt-4o-mini"
     sys_prompt: str = "Be brief. Keep it to plain text."
     stream: bool = True
+    store: bool = True
     max_tokens: int = 200
     temperature: float = 0.6
     top_p: float = 1.0
@@ -51,9 +52,14 @@ class PromptProfile:
     presence_penalty: float = 0.0
     stop: Optional[Union[str, list]] = None
     logprobs: Optional[bool] = None
-    echo: bool = False
+    #echo: bool = False
     response_format: str = "text"
     seed: Optional[int] = None
+
+    def to_dict(self) -> dict:
+        return self.__dict__
+    def to_class(cls, data: dict):
+        return cls(**data)
 
     #NOTE; update_settings should accept an argument(?) for settings to iterate through and change.
     def update_settings(self, console):

@@ -3,6 +3,7 @@
 # creator should hold the PromptGen object.
 import openai, re
 import src.meta as meta
+import itertools
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
@@ -18,27 +19,12 @@ class Creator:
         if not self.ai_client:
             return "API Client Error."
         payload = self.payloader.generate(prompt)
-        #response = self.ai_client.chat.completions.create(payload)
-        response = self.ai_client.chat.completions.create(
-            model=f"{self.payload_config.model}",
-            store=True,
-            messages=[
-            {"role": "system", "content": f"{self.sys_prompt}"},
-            {"role": "user", "content": f"{full_prompt}"}],
-            stream=True,
-            #max_tokens = 200, #Response length (higher -> longer)
-            #temperature = .5, #Randomness (0.0 is deterministic, 1.0 is very random)
-            #top_p = 1.0, #Nucleus sampling (0.0 only considers most likely tokens)
-            #frequency_penalty = 0.0, #Penalty value to frequent words (-2.0 to 2.0, higher is more penalty to repetition)
-            #presence_penalty = 0.0, #Encourages new topic introduction (-2.0 to 2.0, higher makes it more diverse)
-            #stop=["###", "\n\n"], #Stopping sequence, cuts responses early if encountered.
-            #logprobs = None, #
-            #echo - False, #True will include the prompt in the response, false doesn't.
-            #response_format = "json", #Makes response strictly adhere to a given format
-            #seed=40, #Deterministic responses for the same inputs
-        )
-        return response
-
+        try:
+            response = self.ai_client.chat.completions.create(**payload)
+            return response
+        except openai.APIError as e:
+            print(e)
+            
     def validate_key(self, api_key):
         try:
             test_client = openai.OpenAI(api_key=api_key)
@@ -76,15 +62,31 @@ class Creator:
 class Payload:
     def __init__(self, file_manager, payload_config):
         self.file_manager = file_manager
-        self.model = payload_config.model
-        self.sys_prompt = payload_config.sys_prompt
-        self.stream = payload_config.stream
+        self.payload_config = payload_config.to_dict()
         
     def generate(self, prompt):
         #Check for image file imports
         #If image file imports included, modify sys_prompt to include a file_include argument
-        return self.generate_prompt(prompt)
+        body = self.generate_prompt(prompt)
+        sys_prompt = self.payload_config.get("sys_prompt")
+        configs = {k: v for k, v in self.payload_config.items() if k != "sys_prompt"}
+        messages = [
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": body}
+        ]
+
+        if "response_format" in configs:
+            configs["response_format"] = {"type": configs["response_format"]}
+
+        payload = {**configs, "messages": messages}
+        return payload
     
+    def unroll(self, **kwargs):
+        pass
+
+    def preview(self):
+        pass
+
     def generate_prompt (self, body):
         def replace(match):
             ref = match.group(1)
