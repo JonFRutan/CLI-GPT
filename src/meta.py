@@ -3,17 +3,37 @@
 # and perform console functions like clear screen.
 import os, platform
 
-OS_TYPE = platform.system()                                      #Current OS
-MODEL_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models
-IMPORTED_FILES = {}                                              #Dictionary for files                                              
-VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                #For finding references
+#Global, final values
+OS_TYPE = platform.system()                                           #Current OS
+API_MODELS_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models                                       
+VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                     #For finding references
 
-# FIXME; This is rudimentary and early categorizations of the types of files that can be uploaded.
-# Anything that can be read in line-by-line should be under TEXT_FILES
-# Image file types should be under IMAGE_FILES
-# For now, only select file types will be strictly defined...
-IMAGE_FILES = ["png", "jpg", "gif", "webp"]
-TEXT_FILES = ["txt", "doc", "md", "html", "json", "py", "c", "xml"]
+#IMAGE_FILES must be convertible into base64
+IMAGE_FILES = [
+    "png", 
+    "jpg", "jpeg", 
+    "gif", 
+    "webp", 
+    "bmp", 
+    "tiff",
+]
+
+#TEXT_FILES must be readable and transcribable line-by-line
+TEXT_FILES = [
+    "txt",
+    "md", 
+    "html", "htm", 
+    "json", 
+    "py", 
+    "c", "cpp", "h", 
+    "xml", 
+    "java", 
+    "js", "ts", 
+    "sql", 
+    "sh", 
+    "bash", 
+    "yaml", "yml",
+]
 
 def clear_screen():
     os.system("cls" if OS_TYPE=="Windows" else "clear")

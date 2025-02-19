@@ -1,47 +1,30 @@
 #NOTE;
 # creator.py should offload it's settings into settings.py, and instead solely call the API for generation.
 # creator should hold the PromptGen object.
-import openai
-from src.prompt import PromptGen
+import openai, re
 import src.meta as meta
+import itertools
 
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
-    def __init__(self, prompt_config, file_manager):
-        self.model = prompt_config.model
-        self.sys_prompt = prompt_config.sys_prompt
-        #Should api_client be a part of prompt_config? This should be changed into solely a Creator attribute.
-        self.ai_client = None
-        self.prompter = PromptGen(file_manager)
+    def __init__(self, environment, key):
+        self.payloader = Payload(environment.file_manager, environment.payload_config)
+        if not key or not self.validate_key(key):
+            return self.authenticate()
     
-    def refresh(self, prompt_config):
-        self.model = prompt_config.model
-        self.sys_prompt = prompt_config.sys_prompt
+    def refresh(self, payload_config):
+        self.payload_config = payload_config
 
     def generate_response(self, prompt):
         if not self.ai_client:
             return "API Client Error."
-        full_prompt = self.prompter.generate(prompt)
-        response = self.ai_client.chat.completions.create(
-            model=f"{self.model}",
-            store=True,
-            messages=[
-            {"role": "system", "content": f"{self.sys_prompt}"},
-            {"role": "user", "content": f"{full_prompt}"}],
-            stream=True,
-            #max_tokens = 200, #Response length (higher -> longer)
-            #temperature = .5, #Randomness (0.0 is deterministic, 1.0 is very random)
-            #top_p = 1.0, #Nucleus sampling (0.0 only considers most likely tokens)
-            #frequency_penalty = 0.0, #Penalty value to frequent words (-2.0 to 2.0, higher is more penalty to repetition)
-            #presence_penalty = 0.0, #Encourages new topic introduction (-2.0 to 2.0, higher makes it more diverse)
-            #stop=["###", "\n\n"], #Stopping sequence, cuts responses early if encountered.
-            #logprobs = None, #
-            #echo - False, #True will include the prompt in the response, false doesn't.
-            #response_format = "json", #Makes response strictly adhere to a given format
-            #seed=40, #Deterministic responses for the same inputs
-        )
-        return response
-
+        payload = self.payloader.generate(prompt)
+        try:
+            response = self.ai_client.chat.completions.create(**payload)
+            return response
+        except openai.APIError as e:
+            print(e)
+            
     def validate_key(self, api_key):
         try:
             test_client = openai.OpenAI(api_key=api_key)
@@ -72,3 +55,49 @@ class Creator:
                         return "API Key Accepted."
                 else:
                     print("Something went wrong...")
+
+#Payload will house a tuple of all necessary settings and file uploads
+#It should serve directly into generate_response as such: creator.generate_response(payload)
+#Does Payload need to redefine every option? Can it just include a modifiable copy of the provided payload_config?
+class Payload:
+    def __init__(self, file_manager, payload_config):
+        self.file_manager = file_manager
+        self.payload_config = payload_config.to_dict()
+        
+    def generate(self, prompt):
+        #Check for image file imports
+        #If image file imports included, modify sys_prompt to include a file_include argument
+        body = self.generate_prompt(prompt)
+        sys_prompt = self.payload_config.get("sys_prompt")
+        configs = {k: v for k, v in self.payload_config.items() if k != "sys_prompt"}
+        messages = [
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": body}
+        ]
+
+        if "response_format" in configs:
+            configs["response_format"] = {"type": configs["response_format"]}
+
+        payload = {**configs, "messages": messages}
+        return payload
+    
+    def unroll(self, **kwargs):
+        pass
+
+    def preview(self):
+        pass
+
+    def generate_prompt (self, body):
+        def replace(match):
+            ref = match.group(1)
+            if ref in self.file_manager.imported_files:
+                file_contents = self.file_manager.retrieve_file(ref)
+                #Meta context?
+                return file_contents
+            else:
+                return None
+        replacing_text = re.sub(meta.VAR_REGEX, replace, body)
+        if replacing_text: 
+            return replacing_text
+        else:
+            return 

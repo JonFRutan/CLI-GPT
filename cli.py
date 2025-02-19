@@ -11,29 +11,29 @@ from src.environment import Environment
 from src.creator import Creator
 import src.meta as meta
 
-
+#NOTE; I'd like to add a few functionalities to this class:
+# 1. Argument support - start the app with an argument like a settings profile import
+# 2. Instance alternative to repl(), CLIGPT should serve also as an instiatble object, and forego the repl() function.
+#    This would greatly improve it's ability to automate tasks.
 class CLIGPT:
     def __init__(self):
         #Rich console
         self.console = Console()
         self.environment = Environment(self.console)
-        self.creator = Creator(self.environment.prompt_config, self.environment.file_manager)
-        self.commands = Commands(self.environment, self.creator).commands
         meta.clear_screen()
         self.history = InMemoryHistory()
 
         self.console.print("[cyan]Connecting to API...[/cyan]")
         #This may be skipped if an (authorized) environment is imported?
         key = os.getenv("OPENAI_API_KEY")
-        saved = None
-        if not key or not self.creator.validate_key(key):
-            saved = self.creator.authenticate()
-            if saved:
-                self.console.print(f"[bold red]{saved}[/bold red]")
+        saved = self.creator = Creator(self.environment, key)
+        if saved:
+            self.console.print(f"[bold red]{saved}[/bold red]")
         meta.clear_screen()
+        self.commands = Commands(self.environment, self.creator).commands
         self.console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
     
-    def run(self):
+    def repl(self):
         input_style = Style.from_dict({
             'prompt': 'bold cyan'
         })
@@ -41,7 +41,7 @@ class CLIGPT:
             while True:    
                 user_input = prompt(f">> ", history=self.history, style=input_style)
                 head = user_input.split(" ")[0]
-                if head in ["!exit", "exit"]:
+                if head in ["!exit", "!quit"]:
                     exit()
                 elif head in self.commands:
                     args = user_input.split(" ")[1:]
@@ -65,4 +65,4 @@ class CLIGPT:
 if __name__ == "__main__":
     cli_gpt = CLIGPT()
     #Pre-processing stuff...
-    cli_gpt.run()
+    cli_gpt.repl()
