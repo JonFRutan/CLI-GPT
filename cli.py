@@ -16,6 +16,7 @@ import src.meta as meta
 # 2. Instance alternative to repl(), CLIGPT should serve also as an instiatble object, and forego the repl() function.
 #    This would greatly improve it's ability to automate tasks.
 class CLIGPT:
+    #Should console exist only when running repl? 
     def __init__(self):
         #Rich console
         self.console = Console()
@@ -33,6 +34,9 @@ class CLIGPT:
         self.commands = Commands(self.environment, self.creator).commands
         self.console.print("[bold cyan]CLI-GPT[/bold cyan]\n[bold green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/bold green]")
     
+    def generate(self, prompt, *args):
+        pass
+
     def repl(self):
         input_style = Style.from_dict({
             'prompt': 'bold cyan'
