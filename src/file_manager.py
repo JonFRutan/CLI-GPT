@@ -38,3 +38,13 @@ class FileManager:
             #OpenAI's API handles image uploads as seperate parts of the payload.
         else:
             print(f"Reference {ref} unknown.")
+
+    def export_file(self, file_content, file_name, dest):
+        destination = dest + file_name
+        print(f"{destination} and {file_content}")
+        try:
+            with open(destination, "w") as file:
+                file.write(file_content)
+            return f"File created at {destination}"
+        except Exception as e:
+            return f"File export error. - {e}"

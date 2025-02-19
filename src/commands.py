@@ -32,7 +32,8 @@ class Commands:
     #FIXME - This command is too general, it should be made more robust.
     # Instead of calling the creator object, info should accept arguments as to specific details or subcategoires like "PromptSettings" or "UserSettings"
     def show_info(self, *args):
-        return self.environment.print_settings()
+        config = self.creator.payloader.payload_config
+        return "\n".join(f"{key}: {value}" for key, value in config.items())
 
     def show_help(self, *args):
         if not args:
@@ -43,7 +44,6 @@ class Commands:
         else:
             return "Unknown command"
 
-    #return any issues that occur during importing
     def import_file(self, *args):
         if not args:
             return f"No arguments provided. Usage: {self.commands["!import"].syntax}"
@@ -51,14 +51,16 @@ class Commands:
             for path in args[0]:
                 self.environment.file_manager.import_file(path)
     
-    #FIXME; This currently can only be used to change creator prompt settings, this should instead call environment.update_settings()
-    def update_settings(self):
+    def configure(self, *args):
+        #Needs to handle args
         self.environment.update_settings()
         #Refreshing every time for now
-        self.creator.refresh(self.creator)
         return self.clear_screen()
 
-    #FIXME: still using outdated meta to 
+    def export_profile(self, *args):
+        if args:
+            return self.environment.export_profile(args[0][0])
+        
     def show_imports(self, *args):
         appender = ""
         for entry in self.environment.file_manager.imported_files:
@@ -76,8 +78,9 @@ class Commands:
             "!info": Command("info", "Display user/system information.", "!info", self.show_info),
             "!clear": Command("clear", "Clear the screen.", "clear", self.clear_screen),
             "!import": Command("import", "Import a file. Import is used in conjunction with references", "import files/image.png", self.import_file),
-            "!configure": Command("configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.update_settings),
+            "!configure": Command("configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.configure),
             "!references": Command("references", "Show local file references. Imported files can be used in prompting.", "!references || > 'Correct spelling errors from: {reference}.'", self.show_imports),
+            "!export": Command("export", "Export the current profile as a JSON. Arguments will name the profile.", "!export very_random", self.export_profile),
             #"": Command(),
         }
         return commands

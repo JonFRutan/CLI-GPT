@@ -4,7 +4,7 @@ import os
 from rich.console import Console
 from prompt_toolkit import prompt
 from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.styles import Style
+#from prompt_toolkit.styles import Style
 
 from src.commands import Commands
 from src.environment import Environment
@@ -38,12 +38,9 @@ class CLIGPT:
         pass
 
     def repl(self):
-        input_style = Style.from_dict({
-            'prompt': 'bold cyan'
-        })
         try:
             while True:    
-                user_input = prompt(f">> ", history=self.history, style=input_style)
+                user_input = prompt(f">> ", history=self.history, style=meta.input_style)
                 head = user_input.split(" ")[0]
                 if head in ["!exit", "!quit"]:
                     exit()
@@ -62,6 +59,7 @@ class CLIGPT:
                         buffer = chunk.choices[0].delta.content
                         if buffer:
                           self.console.print(f"[bright_white]{buffer}[/bright_white]", end="")
+                
                 self.console.print()
         except KeyboardInterrupt:
             exit()
