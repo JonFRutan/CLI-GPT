@@ -7,10 +7,14 @@ import src.meta as meta
 class Creator:
     #FIXME; Replace these parameters with a single PromptSettings object
     def __init__(self, environment, key):
+        self.environment = environment
         self.payloader = Payload(environment.file_manager, environment.prompt_config)
         if not key or not self.validate_key(key):
             return self.authenticate()
     
+    def refresh(self):
+        self.payloader.payload_config = self.environment.prompt_config.to_dict()
+
     def generate_response(self, prompt):
         if not self.ai_client:
             return "API Client Error."

@@ -38,9 +38,11 @@ class CLIGPT:
         pass
 
     def repl(self):
+        if self.environment.defined_default:
+            self.console.print("Default profile imported.")
         try:
             while True:    
-                user_input = prompt(f">> ", history=self.history, style=meta.input_style)
+                user_input = prompt(f">> ", history=self.history, style=meta.INPUT_STYLE)
                 head = user_input.split(" ")[0]
                 if head in ["!exit", "!quit"]:
                     exit()
@@ -49,16 +51,16 @@ class CLIGPT:
                     if not args:
                         result = self.commands[head].execute()
                     else:
-                        self.console.print(f"[bold blue]ARGS: {args}[/bold blue]")
+                        #self.console.print(f"[bold blue]ARGS: {args}[/bold blue]")
                         result = self.commands[head].execute(*args)
                     if result:
-                        self.console.print(f"[bold green]{result}[/bold green]", end="")
+                        self.console.print(f"[bright_white]{result}[/bright_white]", end="")
                 else:
                     response = self.creator.generate_response(user_input)
                     for chunk in response:
                         buffer = chunk.choices[0].delta.content
                         if buffer:
-                          self.console.print(f"[bright_white]{buffer}[/bright_white]", end="")
+                          self.console.print(f"[turquoise2]{buffer}[/turquoise2]", end="")
                 
                 self.console.print()
         except KeyboardInterrupt:

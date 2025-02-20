@@ -11,6 +11,11 @@ API_MODELS_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available
 VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                     #For finding references
 DEFAULT_PROFILE = PromptProfile()                                     #For storing default values
 
+#Styles for use in prompt toolkit
+INPUT_STYLE = Style.from_dict({
+    'prompt': 'bold cyan'
+})
+
 #IMAGE_FILES must be convertible into base64
 IMAGE_FILES = [
     "png", 
@@ -20,10 +25,6 @@ IMAGE_FILES = [
     "bmp", 
     "tiff",
 ]
-
-input_style = Style.from_dict({
-    'prompt': 'bold cyan'
-})
 
 #TEXT_FILES must be readable and transcribable line-by-line
 TEXT_FILES = [
@@ -60,3 +61,15 @@ def save_environment_variable(api_key):
         return "API key saved. Restart your terminal to update it."
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
+
+def view_all(directory):
+    appender = ""
+    for file in os.listdir(directory):
+        name = file.split(".")[0]
+        appender += name + ", "
+    return appender
+
+def check_for_default():
+    if os.path.isfile("src/profiles/default.json"):
+        return "src/profiles/default.json"
+    return None

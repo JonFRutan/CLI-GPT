@@ -3,7 +3,6 @@ import src.meta as meta
 
 from prompt_toolkit import prompt
 from dataclasses import dataclass
-from typing import Optional, Union
 
 import json
 # The goal of environment.py is to encapsulate both API settings (tokens, system prompt, temp, etc) and the user's client settings (disabling welcome message, enabling persistent file imports, etc.) into one settings object.
@@ -12,23 +11,37 @@ import json
 class Environment:
     def __init__(self, console, *args):
         self.console = console
-        #Upon init, Environment should check for a JSON file containing already existing modifications.
         self.user_settings = None
-        self.prompt_config = PromptProfile()
+        self.prompt_config = None
         self.file_manager = filem.FileManager()
-        #TRY IMPORTING A SETTINGS JSON HERE FOR PROMPT_CONFIG
-        #Saved profiles should be saved in a format where they can directly be rolled into an argument put below
+        self.defined_default = meta.check_for_default()
+        if self.defined_default:
+            with open(f"{self.defined_default}", "r") as file:
+                json_data = json.load(file)
+                self.prompt_config = PromptProfile.to_class(json_data)
+        else:
+            self.prompt_config = PromptProfile()
 
     def print_settings(self):
         return (f"Model: {self.prompt_config.model}\nSystem Prompt: {self.prompt_config.sys_prompt}")
     
+    def import_profile(self, name):
+        dest = f"src/profiles/{name}.json"
+        try:
+            with open(f"{dest}", "r") as file:
+                json_data = json.load(file)
+                self.prompt_config = PromptProfile.to_class(json_data)
+                return f"Profile at {dest} imported."
+        except Exception as e:
+            return "Error importing, check profile name."
+        
     def export_profile(self, name):
         return self.file_manager.export_file(self.prompt_config.jsonify(), name+".json", "src/profiles/")
 
     def update_settings(self):
         meta.clear_screen()
-        self.console.print("[bold red]Settings[/bold red]\n[bold red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/bold red]")
-        response = prompt(f">> ", style=meta.input_style).lower()
+        self.console.print("[bold underline dark_red]Settings[/bold underline dark_red]\n[red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/red]")
+        response = prompt(f">> ", style=meta.INPUT_STYLE).lower()
         if response == "u":
             return self.user_settings.update_settings(self.console)
         elif response == "p":
@@ -73,8 +86,8 @@ class PromptProfile:
             dictionary = self.to_dict()
             #dictionary.pop("profile_name", None) #Remove the profile name from settings list.
             settings_list = "\n".join(f"{key}: {value} - of type [bold underline white]{annotations[key].__name__}[/bold underline white]" if key in annotations else "" for key, value in dictionary.items())
-            console.print(f"[bold blue]Prompt Configurations\nEnter the settings you'd like the adjust, or type 'a' for all.[/bold blue]\n" + f"[bold blue]{settings_list}[/bold blue]")
-            responses = prompt(f">> ", style=meta.input_style).lower()
+            console.print(f"[bold blue]Prompt Configurations\nEnter the settings you'd like the adjust, or type 'a' for all.[/bold blue]\n" + f"[bold blue]{settings_list}\nEnter '#' to leave a value unchanged.[/bold blue]")
+            responses = prompt(f">> ", style=meta.INPUT_STYLE).lower()
             if responses == "a":
                 responses = dictionary.keys()
             else:
@@ -86,6 +99,8 @@ class PromptProfile:
                 updated_value = prompt(f"Changing {key} (currently {dictionary[key]}): ")
                 if updated_value.lower() == "none":
                     updated_value = None
+                elif updated_value.lower() == "#":
+                    updated_value = dictionary[key]
                 else:
                     expected_type = annotations[key]
                     try:
