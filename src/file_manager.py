@@ -15,11 +15,10 @@ class FileManager:
         self.imported_files = {}
         #Any other info needed here?
 
-    #returns file type for telling what was just brought in.
     def import_file(self, file_path, name):
         #May be removed, but keeping it to double-check for now
         if not os.path.isfile(file_path):
-            print (f"File {file_path} doesn't exist.")
+            print(f"File {file_path} doesn't exist.")
             return None
         #NOTE; you can also use os.path.splitext to get the filetype.
         file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again

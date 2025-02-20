@@ -77,6 +77,23 @@ class Commands:
             return "No references yet. Use !import"
         return appender
     
+    def profile_manage(self, *args):
+        if not args:
+            return f"No arguments provided. Usage: {self.commands["!profile"].syntax}"
+        function = args[0][0]
+        if function == "view":
+            return meta.view_all("src/profiles")
+        target = args[0][1]
+        if function in ["import", "export", "view"]:
+            if function == "import":
+                response = self.environment.import_profile(target)
+                self.creator.refresh()
+                return response
+            elif function == "export":
+                return self.environment.export_profile(target)
+        else:
+            return f"{function} not recognized. Use only 'import' or 'export'."
+        
     #List of command items
     #To add, remove, or change commands; modify this function.
     def populate_commands(self):
@@ -88,6 +105,7 @@ class Commands:
             "!configure": Command("configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.configure),
             "!references": Command("references", "Show local file references. Imported files can be used in prompting.", "!references || > 'Correct spelling errors from: {reference}.'", self.show_imports),
             "!export": Command("export", "Export the current profile as a JSON. Arguments will name the profile.", "!export very_random", self.export_profile),
+            "!profile": Command("profile", "Import/Export profiles containing customizations. Profiles should stay in src/profiles. Naming a profile 'default' will load it automatically at program start.", "!profile import counter || !profile export default || !profile view", self.profile_manage)
             #"": Command(),
         }
         return commands

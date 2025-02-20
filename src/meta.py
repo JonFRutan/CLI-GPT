@@ -61,3 +61,15 @@ def save_environment_variable(api_key):
         return "API key saved. Restart your terminal to update it."
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
+
+def view_all(directory):
+    appender = ""
+    for file in os.listdir(directory):
+        name = file.split(".")[0]
+        appender += name + ", "
+    return appender
+
+def check_for_default():
+    if os.path.isfile("src/profiles/default.json"):
+        return "src/profiles/default.json"
+    return None
