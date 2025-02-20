@@ -11,6 +11,11 @@ API_MODELS_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available
 VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                     #For finding references
 DEFAULT_PROFILE = PromptProfile()                                     #For storing default values
 
+#Styles for use in prompt toolkit
+INPUT_STYLE = Style.from_dict({
+    'prompt': 'bold cyan'
+})
+
 #IMAGE_FILES must be convertible into base64
 IMAGE_FILES = [
     "png", 
@@ -20,10 +25,6 @@ IMAGE_FILES = [
     "bmp", 
     "tiff",
 ]
-
-input_style = Style.from_dict({
-    'prompt': 'bold cyan'
-})
 
 #TEXT_FILES must be readable and transcribable line-by-line
 TEXT_FILES = [

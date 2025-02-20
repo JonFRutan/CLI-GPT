@@ -27,8 +27,8 @@ class Environment:
 
     def update_settings(self):
         meta.clear_screen()
-        self.console.print("[bold red]Settings[/bold red]\n[bold red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/bold red]")
-        response = prompt(f">> ", style=meta.input_style).lower()
+        self.console.print("[bold underline red]Settings[/bold underline red]\n[red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/red]")
+        response = prompt(f">> ", style=meta.INPUT_STYLE).lower()
         if response == "u":
             return self.user_settings.update_settings(self.console)
         elif response == "p":
@@ -74,7 +74,7 @@ class PromptProfile:
             #dictionary.pop("profile_name", None) #Remove the profile name from settings list.
             settings_list = "\n".join(f"{key}: {value} - of type [bold underline white]{annotations[key].__name__}[/bold underline white]" if key in annotations else "" for key, value in dictionary.items())
             console.print(f"[bold blue]Prompt Configurations\nEnter the settings you'd like the adjust, or type 'a' for all.[/bold blue]\n" + f"[bold blue]{settings_list}[/bold blue]")
-            responses = prompt(f">> ", style=meta.input_style).lower()
+            responses = prompt(f">> ", style=meta.INPUT_STYLE).lower()
             if responses == "a":
                 responses = dictionary.keys()
             else:

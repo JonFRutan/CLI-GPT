@@ -15,15 +15,18 @@ class FileManager:
         self.imported_files = {}
         #Any other info needed here?
 
-    def import_file(self, file_path):
+    #returns file type for telling what was just brought in.
+    def import_file(self, file_path, name):
+        #May be removed, but keeping it to double-check for now
         if not os.path.isfile(file_path):
             print (f"File {file_path} doesn't exist.")
             return None
+        #NOTE; you can also use os.path.splitext to get the filetype.
         file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again
-        #NOTE; you can also use os.path.splitext to get the filetype, but I already made this.
-        reference_name = input(f"{file_path} found. Provide a reference name: ").strip()
-        self.imported_files[reference_name] = ImportedFile(reference_name, file_path, file_type)
-        return 1
+        if file_type not in meta.IMAGE_FILES and file_type not in meta.TEXT_FILES:
+            return f"{file_path} has invalid type: {file_type}"
+        self.imported_files[name] = ImportedFile(name, file_path, file_type)
+        return f"{file_path} -> {name}"
     
     def retrieve_file(self, ref):
         if ref in self.imported_files:

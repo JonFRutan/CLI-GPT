@@ -1,4 +1,8 @@
+import os
 import src.meta as meta
+
+from prompt_toolkit import prompt
+
 #Command name, description, usage, and related function
 class Command:
     def __init__ (self, name, description, syntax, action, context=None):
@@ -45,11 +49,14 @@ class Commands:
             return "Unknown command"
 
     def import_file(self, *args):
+        appender = ""
         if not args:
             return f"No arguments provided. Usage: {self.commands["!import"].syntax}"
-        else:
-            for path in args[0]:
-                self.environment.file_manager.import_file(path)
+        for path in args[0]:
+            if os.path.isfile(path):
+                file_name = prompt(f"{path} found; provide a reference name: ", style=meta.INPUT_STYLE)
+                appender += self.environment.file_manager.import_file(path, file_name)
+        return appender
     
     def configure(self, *args):
         #Needs to handle args

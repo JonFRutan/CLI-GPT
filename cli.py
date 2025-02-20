@@ -40,7 +40,7 @@ class CLIGPT:
     def repl(self):
         try:
             while True:    
-                user_input = prompt(f">> ", history=self.history, style=meta.input_style)
+                user_input = prompt(f">> ", history=self.history, style=meta.INPUT_STYLE)
                 head = user_input.split(" ")[0]
                 if head in ["!exit", "!quit"]:
                     exit()
