@@ -1,11 +1,7 @@
-#NOTE;
-# creator.py should offload it's settings into settings.py, and instead solely call the API for generation.
-# creator should hold the PromptGen object.
 import openai, re
 import src.meta as meta
 
 class Creator:
-    #FIXME; Replace these parameters with a single PromptSettings object
     def __init__(self, environment, key):
         self.environment = environment
         self.payloader = Payload(environment.file_manager, environment.prompt_config)
@@ -19,6 +15,8 @@ class Creator:
         if not self.ai_client:
             return "API Client Error."
         payload = self.payloader.generate(prompt)
+        if not payload:
+            return None
         try:
             response = self.ai_client.chat.completions.create(**payload)
             return response
@@ -65,21 +63,33 @@ class Payload:
         self.payload_config = payload_config.to_dict()
     
     def generate(self, prompt):
-        #Check for image file imports
-        #If image file imports included, modify sys_prompt to include a file_include argument
+        vars = re.findall(meta.VAR_REGEX, prompt)
+        image_code = None
+        for var in vars:
+            reference = self.file_manager.imported_files.get(var.strip("{}"))
+            if reference.type in meta.IMAGE_FILES:
+                image_code = f"data:image/{reference.type};base64,{self.file_manager.retrieve_file(var)}"
         body = self.generate_prompt(prompt)
+        if not body:
+            return None
         sys_prompt = self.payload_config.get("sys_prompt")
         configs = {k: v for k, v in self.payload_config.items() if k != "sys_prompt"}
+        #When importing images, we must change the content from 'body' to a dictionary containing:
+        # "type" : "text", "text": body
+        # "type" : "image_url", "image_url": {"url": image_url}
+        # The idea for now is to create a user_message dictionary object, this will be in generate_user_message
         messages = [
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": body}
         ]
-
         if "response_format" in configs:
             configs["response_format"] = {"type": configs["response_format"]}
 
         payload = {**configs, "messages": messages}
         return payload
+
+    def generate_user_message (self):
+        pass
 
     def generate_prompt (self, body):
         def replace(match):
@@ -89,9 +99,9 @@ class Payload:
                 #Meta context?
                 return file_contents
             else:
-                return None
+                return ""
         replacing_text = re.sub(meta.VAR_REGEX, replace, body)
         if replacing_text: 
             return replacing_text
         else:
-            return 
+            return None

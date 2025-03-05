@@ -38,16 +38,23 @@ class Environment:
     def export_profile(self, name):
         return self.file_manager.export_file(self.prompt_config.jsonify(), name+".json", "src/profiles/")
 
-    def update_settings(self):
-        meta.clear_screen()
-        self.console.print("[bold underline dark_red]Settings[/bold underline dark_red]\n[red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/red]")
-        response = prompt(f">> ", style=meta.INPUT_STYLE).lower()
-        if response == "u":
-            return self.user_settings.update_settings(self.console)
-        elif response == "p":
-            return self.prompt_config.update_settings(self.console)
+    def update_settings(self, *args):
+        if not args:
+            meta.clear_screen()
+            self.console.print("[bold underline dark_red]Settings[/bold underline dark_red]\n[red]Select a menu:\nProgram settings (u)\nPrompt settings (p)[/red]")
+            response = prompt(f">> ", style=meta.INPUT_STYLE).lower()
+            if response == "u":
+                return self.user_settings.update_settings(self.console)
+            elif response == "p":
+                return self.prompt_config.update_settings(self.console)
+        else:
+            #self.console.print(args)
+            return self.prompt_config.update_settings(self.console, args[0])
+
+
 
 #No user settings are currently implemented
+#Color scheme, Welcome message, screen clearing...
 class UserSettings:
     def __init__(self):
         pass
@@ -81,22 +88,23 @@ class PromptProfile:
 
     def update_settings(self, console, *args):
         #For now, args cannot be passed so this branch will always execute
+        mod_settings = ""
+        annotations = self.__class__.__annotations__
+        dictionary = self.to_dict()
         if not args:
-            annotations = self.__class__.__annotations__
-            dictionary = self.to_dict()
             #dictionary.pop("profile_name", None) #Remove the profile name from settings list.
             settings_list = "\n".join(f"{key}: {value} - of type [bold underline white]{annotations[key].__name__}[/bold underline white]" if key in annotations else "" for key, value in dictionary.items())
-            console.print(f"[bold blue]Prompt Configurations\nEnter the settings you'd like the adjust, or type 'a' for all.[/bold blue]\n" + f"[bold blue]{settings_list}\nEnter '#' to leave a value unchanged.[/bold blue]")
-            responses = prompt(f">> ", style=meta.INPUT_STYLE).lower()
-            if responses == "a":
-                responses = dictionary.keys()
+            console.print(f"[bold blue]Prompt Configurations\nEnter the settings you'd like the adjust, or type 'a' for all.[/bold blue]\n" + f"[bold blue]{settings_list}[/bold blue]")
+            mod_settings = prompt(f">> ", style=meta.INPUT_STYLE).lower()
+            if mod_settings == "a":
+                mod_settings = dictionary.keys()
             else:
-                responses = responses.split(" ")
+                mod_settings = mod_settings.replace(",", "").split(" ")
         if args:
-            responses = args
-        for key in responses:
+            mod_settings = args[0]
+        for key in mod_settings:
             if key in dictionary:
-                updated_value = prompt(f"Changing {key} (currently {dictionary[key]}): ")
+                updated_value = prompt(f"Changing {key} (currently {dictionary[key]}, enter '#' to leave unchanged.): ")
                 if updated_value.lower() == "none":
                     updated_value = None
                 elif updated_value.lower() == "#":
