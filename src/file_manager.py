@@ -18,8 +18,7 @@ class FileManager:
     def import_file(self, file_path, name):
         #May be removed, but keeping it to double-check for now
         if not os.path.isfile(file_path):
-            print(f"File {file_path} doesn't exist.")
-            return None
+            return f"File {file_path} doesn't exist."
         #NOTE; you can also use os.path.splitext to get the filetype.
         file_type = file_path[::-1].split(".")[0][::-1]   #Reverses, cuts at period, slices, reverses again
         if file_type not in meta.IMAGE_FILES and file_type not in meta.TEXT_FILES:
@@ -36,8 +35,6 @@ class FileManager:
             elif working_file.type in meta.IMAGE_FILES:  
                 with open (working_file.path, "rb") as image:
                     return base64.b64encode(image.read()).decode("utf-8")
-            #NOTE; Image uploads are handled differently by the API, so this won't work
-            #OpenAI's API handles image uploads as seperate parts of the payload.
         else:
             print(f"Reference {ref} unknown.")
 

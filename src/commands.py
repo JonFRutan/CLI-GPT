@@ -31,7 +31,7 @@ class Commands:
     
     def clear_screen(self, *args):
         meta.clear_screen()
-        return "[bold cyan]CLI-GPT[/bold cyan]\nType '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands."
+        return "[bold cyan]CLI-GPT[/bold cyan]\n[green]Type '!exit' or hit Ctrl+C to exit the program.\nType '!help' to see more commands.[/green]"
 
     #FIXME - This command is too general, it should be made more robust.
     # Instead of calling the creator object, info should accept arguments as to specific details or subcategoires like "PromptSettings" or "UserSettings"
@@ -59,15 +59,14 @@ class Commands:
         return appender
     
     def configure(self, *args):
-        #Needs to handle args
-        self.environment.update_settings()
-        #Refreshing every time for now
-        return self.clear_screen()
+        if not args:
+            self.environment.update_settings()
+            self.creator.refresh()
+            return self.clear_screen()
+        else:
+            #print(args[0])
+            self.environment.update_settings(args[0])
 
-    def export_profile(self, *args):
-        if args:
-            return self.environment.export_profile(args[0][0])
-        
     def show_imports(self, *args):
         appender = ""
         for entry in self.environment.file_manager.imported_files:
@@ -104,8 +103,7 @@ class Commands:
             "!import": Command("import", "Import a file. Import is used in conjunction with references", "import files/image.png", self.import_file),
             "!configure": Command("configure", "Manually adjust all system settings", "!configure OR !configure (setting)", self.configure),
             "!references": Command("references", "Show local file references. Imported files can be used in prompting.", "!references || > 'Correct spelling errors from: {reference}.'", self.show_imports),
-            "!export": Command("export", "Export the current profile as a JSON. Arguments will name the profile.", "!export very_random", self.export_profile),
-            "!profile": Command("profile", "Import/Export profiles containing customizations. Profiles should stay in src/profiles. Naming a profile 'default' will load it automatically at program start.", "!profile import counter || !profile export default || !profile view", self.profile_manage)
+            "!profile": Command("profile", "Import/Export profiles containing customizations.", "!profile import counter || !profile export default || !profile view\nProfiles should stay in src/profiles. Naming a profile 'default' will load it automatically at program start.", self.profile_manage)
             #"": Command(),
         }
         return commands

@@ -35,7 +35,7 @@ docs/text/notes.txt found. Provide a reference name: notes
 ```  
 #### To Do
 
-- Settings persistence (Currently WIP)
+- Settings persistence (Prompt settings done.)
 - File upload (Currently WIP)
 - Auto-install scripts (Container/Venv)
 - Image Generation
