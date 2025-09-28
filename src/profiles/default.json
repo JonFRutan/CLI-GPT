@@ -1,15 +1,7 @@
 {
-    "model": "gpt-4o-mini",
-    "sys_prompt": "Be brief. Keep to plain text.",
-    "stream": true,
-    "store": true,
-    "max_tokens": 250,
-    "temperature": 0.7,
-    "top_p": 1.0,
-    "frequency_penalty": 0.0,
-    "presence_penalty": 0.0,
-    "stop": null,
-    "logprobs": null,
-    "response_format": "text",
-    "seed": null
+    "instructions": "Be brief.",
+    "max_output_tokens": 200,
+    "model": "gpt-5-nano",
+    "reasoning": "'effort': 'minimal'",
+    "temperature": 1
 }

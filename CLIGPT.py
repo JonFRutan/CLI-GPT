@@ -27,13 +27,64 @@ class CLIGPT:
         #    self.console.print(f"[bold red]{saved}[/bold red]")
 
     def generate(self, prompt, *args):
-        #args should unroll several command calls.
-        #Example: if arg[2] in self.commands: self.commands[head].execute
-        #Issue here is when delimit subarguments.
-        self.environment.prompt_config.stream = False
-        response = self.creator.generate_response(prompt)
-        return response.choices[0].message.content
+        if not args:
+            self.environment.prompt_config.stream = False
+            response = self.creator.generate_response(prompt)
+            return response.output_text
+        #FIXME - This command splitter doesn't work.
+        results = []
+        current = None
+        for item in args[0]:
+            if item in self.commands:
+                if current:
+                    results.append(tuple(current))
+                current = [item]
+            else:
+                if current:
+                    current.append(item)
+        if current:
+            results.append(tuple(current))
+        return results #FIXME
 
+    #FIXME: This is broken
+    def grab_args(self, user_arguments):
+        args = []
+        recent_word = 0
+        sub_index = 0
+        for i, char in enumerate(user_arguments):
+            if char == " ":
+                args.append(f"{user_arguments[recent_word:i]}")
+                recent_word = i
+            if char == '"':
+                for k, subchar in enumerate(user_arguments[i+1:]):
+                    if subchar == '"':
+                        #print(i)
+                        #print(recent_word)
+                        #print(k)
+                        args.append(f"{user_arguments[i:i+k+2]}")
+                        slice1 = user_arguments[:i-1]
+                        slice2 = user_arguments[i+k+2:]
+                        print(slice1)
+                        print(slice2)
+                        user_arguments = slice1+slice2
+                        break
+        return args
+
+        """
+        args = user_arguments.split(" ")
+        for i, arg in enumerate(args):
+            print(arg)
+            if arg[0] == '"':
+               print("first branch hit")
+               for j, subarg in enumerate(args[i+1:]):
+                   print(f"SUBARG: {subarg}")
+                   if subarg[-1] == '"':
+                        print("second branch hit")
+                        args[i] = f"{args[i:j]}"
+                        del args[i+1:j]
+                        break
+        return args
+        """
     def repl(self):
         message_history = InMemoryHistory()
         meta.clear_screen()
@@ -44,10 +95,11 @@ class CLIGPT:
             while True:    
                 user_input = prompt(f">> ", history=message_history, style=meta.INPUT_STYLE)
                 head = user_input.split(" ")[0]
-                if head in ["!exit", "!quit"]:
+                if head in ["!exit", "!quit", "exit", "quit"]:
                     exit()
                 #FIXME; This should branch if the first character in the input is an '!'
                 elif head in self.commands:
+                    #FIXME: If a string is provided it splits the string into multiple arguments.
                     args = user_input.split(" ")[1:]
                     if not args:
                         result = self.commands[head].execute()
@@ -58,8 +110,12 @@ class CLIGPT:
                         self.console.print(f"[bright_white]{result}[/bright_white]", end="")
                 else:
                     response = self.creator.generate_response(user_input)
+                    if response is None:
+                        print("Error generating response")
                     for chunk in response:
-                        buffer = chunk.choices[0].delta.content
+                        buffer = ""
+                        if chunk.type == "response.output_text.delta":
+                            buffer = chunk.delta
                         if buffer:
                           self.console.print(f"[turquoise2]{buffer}[/turquoise2]", end="")
                 

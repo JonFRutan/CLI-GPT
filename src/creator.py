@@ -1,4 +1,4 @@
-import openai, re
+import openai, re, json
 import src.meta as meta
 
 class Creator:
@@ -16,9 +16,10 @@ class Creator:
             return "API Client Error."
         payload = self.payloader.generate(prompt)
         if not payload:
+            print("Error in in generate_response.")
             return None
         try:
-            response = self.ai_client.chat.completions.create(**payload)
+            response = self.ai_client.responses.create(**payload)
             return response
         except openai.APIError as e:
             print(e)
@@ -71,21 +72,21 @@ class Payload:
                 image_code = f"data:image/{reference.type};base64,{self.file_manager.retrieve_file(var)}"
         body = self.generate_prompt(prompt)
         if not body:
+            print("Generated body is 'None' - Payload.generate")
             return None
-        sys_prompt = self.payload_config.get("sys_prompt")
-        configs = {k: v for k, v in self.payload_config.items() if k != "sys_prompt"}
+        instructions = self.payload_config.get("instructions")
+        configs = {k: v for k, v in self.payload_config.items() if k not in ["instructions", "reasoning"]}
         #When importing images, we must change the content from 'body' to a dictionary containing:
         # "type" : "text", "text": body
         # "type" : "image_url", "image_url": {"url": image_url}
         # The idea for now is to create a user_message dictionary object, this will be in generate_user_message
-        messages = [
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": body}
-        ]
+
         if "response_format" in configs:
             configs["response_format"] = {"type": configs["response_format"]}
-
-        payload = {**configs, "messages": messages}
+        reasoning_object = json.loads(self.payload_config["reasoning"])
+        payload = {**configs, "instructions": instructions, "input": body, "reasoning": reasoning_object}
+        if payload is None:
+            print("Unloaded configs resulted in empty payload - Payload.generate")
         return payload
 
     def generate_user_message (self):

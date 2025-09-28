@@ -53,6 +53,7 @@ class Commands:
         if not args:
             return f"No arguments provided. Usage: {self.commands["!import"].syntax}"
         for path in args[0]:
+            #print(path)
             if os.path.isfile(path):
                 file_name = prompt(f"{path} found; provide a reference name: ", style=meta.INPUT_STYLE)
                 appender += self.environment.file_manager.import_file(path, file_name)
@@ -77,12 +78,18 @@ class Commands:
         return appender
     
     def profile_manage(self, *args):
-        if not args:
-            return f"No arguments provided. Usage: {self.commands["!profile"].syntax}"
+        if len(args)<3:
+            return f"Not enough arguments provided. Usage: {self.commands["!profile"].syntax}"
         function = args[0][0]
         if function == "view":
             return meta.view_all("src/profiles")
-        target = args[0][1]
+        
+        try:
+            target = args[0][1]
+        except Exception as e:
+            print("Please provide a target e.g. '!profile export pirate'")
+            pass
+
         if function in ["import", "export", "view"]:
             if function == "import":
                 response = self.environment.import_profile(target)

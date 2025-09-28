@@ -64,26 +64,38 @@ class UserSettings:
 #NOTE; It may be better to define a PromptParameter object and store the name, value, value type, and ranges.
 @dataclass
 class PromptProfile:
-    model: str = "gpt-4o-mini"
-    sys_prompt: str = "Be brief. Keep it to plain text."
-    stream: bool = True
+
+    background: bool = False
+    #conversation: object = None
+    input: str = ""
+    instructions: str = "Be brief."
+    max_output_tokens: int = 200
+    max_tool_calls: int = None
+    metadata: map = None
+    model: str = "gpt-5-nano"
+    parallel_tool_calls: bool = True
+    #previous_response_id: str = None
+    prompt: object = None
+    prompt_cache_key: str = None
+    reasoning: str = '{"effort": "minimal"}'
+    service_tier: str = "auto"
     store: bool = True
-    max_tokens: int = 200
-    temperature: float = 0.6
-    top_p: float = 1.0
-    frequency_penalty: float = 0.0
-    presence_penalty: float = 0.0
-    stop: str = None
-    logprobs: bool = None
-    #echo: bool = False
-    response_format: str = "text"
-    seed: int = None
+    stream: bool = True
+    stream_options: object = None
+    temperature: int = 1
+    text: object = None
+    tool_choice: str = None
+    #tools: array = None
+    top_logprobs: int = None
+    top_p: int = 1
+    truncation: str = None
 
     def to_dict(self) -> dict:
         return self.__dict__
-    
+
     @classmethod
     def to_class(cls, data: dict):
+        data["reasoning"] = "{" + data["reasoning"].replace("'", "\"") + "}" #turns provided reasoning class string into a parseable json object
         return cls(**data)
 
     def update_settings(self, console, *args):
@@ -101,10 +113,20 @@ class PromptProfile:
             else:
                 mod_settings = mod_settings.replace(",", "").split(" ")
         if args:
-            mod_settings = args[0]
-        for key in mod_settings:
+            mod_settings =     args[0][::2]
+            mod_setting_args = args[0][1::2]
+            print(mod_settings)
+            print(mod_setting_args)
+
+        #FIXME: This needs to have the option for a user to provide the updating argument for the provided setting being changed.
+        # e.g : !configure max_output_tokens 300
+        for i, key in enumerate(mod_settings):
             if key in dictionary:
-                updated_value = prompt(f"Changing {key} (currently {dictionary[key]}, enter '#' to leave unchanged.): ")
+                if mod_setting_args[i] is not None:
+                    updated_value = mod_setting_args[i+1]
+                else:
+                    updated_value = prompt(f"Changing {key} (currently {dictionary[key]}, enter '#' to leave unchanged.): ")
+
                 if updated_value.lower() == "none":
                     updated_value = None
                 elif updated_value.lower() == "#":

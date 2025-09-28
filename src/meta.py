@@ -2,12 +2,12 @@
 # meta.py should store global data, perform modifications outside the environment, 
 # and perform console functions like clear screen.
 import os, platform
+from openai import OpenAI
 from src.environment import PromptProfile
 from prompt_toolkit.styles import Style
 
 #Global, final values
-OS_TYPE = platform.system()                                           #Current OS
-API_MODELS_LIST = ["gpt-4o-mini", "gpt-4o", "gpt-3-5-turbo", "gpt-4"] #Available models                                       
+OS_TYPE = platform.system()                                           #Current OS                                   
 VAR_REGEX = r"\{([a-zA-Z0-9]+)\}"                                     #For finding references
 DEFAULT_PROFILE = PromptProfile()                                     #For storing default values
 
@@ -62,6 +62,14 @@ def save_environment_variable(api_key):
     else:
         print(f"Unsupported OS: {OS_TYPE}. Try setting the env variable manually.\nCreate an issue or message me if you see this!")
 
+def retrieve_model_list() :
+    client = OpenAI()
+    model_list = client.models.list()
+    available_models = []
+    for model in model_list:
+        available_models.append(model.id)
+    return available_models
+
 def view_all(directory):
     appender = ""
     for file in os.listdir(directory):
@@ -73,3 +81,5 @@ def check_for_default():
     if os.path.isfile("src/profiles/default.json"):
         return "src/profiles/default.json"
     return None
+
+API_MODELS_LIST = retrieve_model_list() #Available Models
