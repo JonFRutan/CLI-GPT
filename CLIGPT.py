@@ -1,5 +1,5 @@
 #jfr
-import os, sys
+import os, sys, csv
 
 from rich.console import Console
 from prompt_toolkit import prompt
@@ -32,59 +32,30 @@ class CLIGPT:
             response = self.creator.generate_response(prompt)
             return response.output_text
         #FIXME - This command splitter doesn't work.
-        results = []
-        current = None
-        for item in args[0]:
-            if item in self.commands:
-                if current:
-                    results.append(tuple(current))
-                current = [item]
-            else:
-                if current:
-                    current.append(item)
-        if current:
-            results.append(tuple(current))
-        return results #FIXME
+        #results = []
+        #current = None
+        #for item in args:
+        #    if item in self.commands:
+        #      pass  
+        #return results #FIXME
 
-    #FIXME: This is broken
+    #this is bad
     def grab_args(self, user_arguments):
+        print(user_arguments)
         args = []
-        recent_word = 0
-        sub_index = 0
-        for i, char in enumerate(user_arguments):
-            if char == " ":
-                args.append(f"{user_arguments[recent_word:i]}")
-                recent_word = i
-            if char == '"':
-                for k, subchar in enumerate(user_arguments[i+1:]):
-                    if subchar == '"':
-                        #print(i)
-                        #print(recent_word)
-                        #print(k)
-                        args.append(f"{user_arguments[i:i+k+2]}")
-                        slice1 = user_arguments[:i-1]
-                        slice2 = user_arguments[i+k+2:]
-                        print(slice1)
-                        print(slice2)
-                        user_arguments = slice1+slice2
-                        break
+        appender = ''
+        for line in csv.reader(user_arguments, skipinitialspace=True):
+            if line[0] == '':
+                args.append(appender)
+                appender = ''
+            elif len(line) == 1:
+                appender = appender + str(line[0])
+            else:
+                args.append(line)
+            #print(appender)
+        args.append(appender)
         return args
-
-        """
-        args = user_arguments.split(" ")
-        for i, arg in enumerate(args):
-            print(arg)
-            if arg[0] == '"':
-               print("first branch hit")
-               for j, subarg in enumerate(args[i+1:]):
-                   print(f"SUBARG: {subarg}")
-                   if subarg[-1] == '"':
-                        print("second branch hit")
-                        args[i] = f"{args[i:j]}"
-                        del args[i+1:j]
-                        break
-        return args
-        """
+    
     def repl(self):
         message_history = InMemoryHistory()
         meta.clear_screen()
@@ -99,8 +70,10 @@ class CLIGPT:
                     exit()
                 #FIXME; This should branch if the first character in the input is an '!'
                 elif head in self.commands:
+                    user_input = user_input[len(head):]
                     #FIXME: If a string is provided it splits the string into multiple arguments.
-                    args = user_input.split(" ")[1:]
+                    args = self.grab_args(user_input[1:])
+                    #print(args)
                     if not args:
                         result = self.commands[head].execute()
                     else:

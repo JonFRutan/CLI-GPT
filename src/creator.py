@@ -7,7 +7,9 @@ class Creator:
         self.payloader = Payload(environment.file_manager, environment.prompt_config)
         if not key or not self.validate_key(key):
             return self.authenticate()
-    
+        self.conversation = openai.conversations.create()
+        self.response = None
+
     def refresh(self):
         self.payloader.payload_config = self.environment.prompt_config.to_dict()
 
@@ -19,7 +21,7 @@ class Creator:
             print("Error in in generate_response.")
             return None
         try:
-            response = self.ai_client.responses.create(**payload)
+            response = openai.responses.create(**payload, conversation=self.conversation.id)
             return response
         except openai.APIError as e:
             print(e)
@@ -93,6 +95,7 @@ class Payload:
         pass
 
     def generate_prompt (self, body):
+        #print(body)
         def replace(match):
             ref = match.group(1)
             if ref in self.file_manager.imported_files:

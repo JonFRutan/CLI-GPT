@@ -115,15 +115,15 @@ class PromptProfile:
         if args:
             mod_settings =     args[0][::2]
             mod_setting_args = args[0][1::2]
-            print(mod_settings)
-            print(mod_setting_args)
+            #print(mod_settings)
+            #print(mod_setting_args)
 
         #FIXME: This needs to have the option for a user to provide the updating argument for the provided setting being changed.
         # e.g : !configure max_output_tokens 300
         for i, key in enumerate(mod_settings):
             if key in dictionary:
                 if mod_setting_args[i] is not None:
-                    updated_value = mod_setting_args[i+1]
+                    updated_value = str(f"\"{mod_setting_args[i]}\"")
                 else:
                     updated_value = prompt(f"Changing {key} (currently {dictionary[key]}, enter '#' to leave unchanged.): ")
 
