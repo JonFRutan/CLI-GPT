@@ -72,7 +72,7 @@ class CLIGPT:
                 elif head in self.commands:
                     user_input = user_input[len(head):]
                     #FIXME: If a string is provided it splits the string into multiple arguments.
-                    args = self.grab_args(user_input[1:])
+                    #args = self.grab_args(user_input[1:])
                     #print(args)
                     if not args:
                         result = self.commands[head].execute()
